@@ -1,12 +1,12 @@
 package cards;
 
-public final class ArmorCard implements TreasureCard {
+public final class ArmourCard implements TreasureCard {
     private final String name;
     private final String description;
     private final String requiredClass;
     private final String requiredGender;
 
-    public ArmorCard(String name, String description, String requiredClass, String requiredGender) {
+    public ArmourCard(String name, String description, String requiredClass, String requiredGender) {
         this.name = name;
         this.description = description;
         this.requiredClass = requiredClass;
