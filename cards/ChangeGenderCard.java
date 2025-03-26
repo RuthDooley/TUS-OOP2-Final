@@ -1,9 +1,9 @@
 package cards;
 
 // SPEC: 6 record classes
-public record ChangeGenderCard(String name) implements DoorCard {
+public record ChangeGenderCard(String newGender) implements DoorCard {
     @Override
     public String description() {
-        return "Changes your character's gender.";
+        return "TODO";
     }
 }

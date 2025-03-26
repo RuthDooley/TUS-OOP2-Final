@@ -1,9 +1,9 @@
 package cards;
 
 // SPEC: 6 record classes
-public record CombatPowerCard(String name, String description, String monsterType, int bonusPower) implements TreasureCard {
+public record CombatPowerCard(String name, int monsterLvl, int bonusPower, String description) implements TreasureCard {
     @Override
     public String description() {
-        return "Gives +" + bonusPower + " combat power against " + monsterType + " monsters.";
+        return "Gives +" + bonusPower + " combat power against " + monsterLvl + " monsters.";
     }
 }

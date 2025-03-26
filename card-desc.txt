@@ -18,53 +18,53 @@ monster, 15, wizard, 2, example
 monster, 16, female, 2, example
 monster, 17, warrier, 2, example
 monster, 18, cleric, 2, example
-armour, 0, warrier,
-armour, 0, cleric,
-armour, 1, wizard,
-armour, 1, warrier,
-armour, 0, cleric,
-armour, 0, wizard,
-armour, 0, warrier,
-armour, 1, cleric,
-armour, 0, wizard,
-armour, 0, warrier,
-armour, 0, cleric,
-armour, 1, wizard,
-armour, 1, warrier,
-armour, 0, cleric,
-armour, 0, wizard,
-armour, 0, warrier,
-armour, 1, cleric,
-armour, 0, wizard,
-armour, 0, warrier,
-armour, 0, cleric,
-armour, 1, wizard,
-armour, 1, warrier,
-armour, 0, cleric,
-armour, 0, wizard,
-armour, 0, warrier,
-armour, 1, cleric,
-armour, 0, wizard,
-armour, 0, warrier,
-armour, 0, cleric,
-armour, 1, wizard,
-armour, 1, warrier,
-armour, 0, cleric,
-armour, 0, wizard,
-armour, 0, warrier,
-armour, 1, cleric,
-combat, 15, 
-combat, 16, 
-combat, 17, 
-combat, 15, 
-combat, 16, 
-combat, 17, 
-combat, 15, 
-combat, 16, 
-combat, 17, 
-combat, 15, 
-combat, 16, 
-combat, 17, 
-combat, 15, 
-combat, 13, 
-combat, 14, 
+armour, 0, warrier, example
+armour, 0, cleric, example
+armour, 1, wizard, example
+armour, 1, warrier, example
+armour, 0, cleric, example
+armour, 0, wizard, example
+armour, 0, warrier, example
+armour, 1, cleric, example
+armour, 0, wizard, example
+armour, 0, warrier, example
+armour, 0, cleric, example
+armour, 1, wizard, example
+armour, 1, warrier, example
+armour, 0, cleric, example
+armour, 0, wizard, example
+armour, 0, warrier, example
+armour, 1, cleric, example
+armour, 0, wizard, example
+armour, 0, warrier, example
+armour, 0, cleric, example
+armour, 1, wizard, example
+armour, 1, warrier, example
+armour, 0, cleric, example
+armour, 0, wizard, example
+armour, 0, warrier, example
+armour, 1, cleric, example
+armour, 0, wizard, example
+armour, 0, warrier, example
+armour, 0, cleric, example
+armour, 1, wizard, example
+armour, 1, warrier, example
+armour, 0, cleric, example
+armour, 0, wizard, example
+armour, 0, warrier, example
+armour, 1, cleric, example
+combat, 15, example
+combat, 16, example
+combat, 17, example
+combat, 15, example
+combat, 16, example
+combat, 17, example
+combat, 15, example
+combat, 16, example
+combat, 17, example
+combat, 15, example
+combat, 16, example
+combat, 17, example
+combat, 15, example
+combat, 13, example
+combat, 14, example
