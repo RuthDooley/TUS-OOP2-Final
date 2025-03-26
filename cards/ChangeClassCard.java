@@ -1,5 +1,6 @@
 package cards;
 
+// SPEC: 6 record classes
 public record ChangeClassCard(String name) implements DoorCard {
     @Override
     public String description() {

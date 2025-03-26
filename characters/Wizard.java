@@ -1,9 +1,4 @@
 package characters;
 
-public record Wizard() implements CharacterClass {
-    @Override
-    public String getDescription() {
-        return "sample";
-    }
-}
-
+// SPEC: 6 record classes
+public final class Wizard extends CharacterClass {}

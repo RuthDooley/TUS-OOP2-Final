@@ -1,9 +1,5 @@
 package characters;
 
-public record Warrior() implements CharacterClass {
-    @Override
-    public String getDescription() {
-        return "sample";
-    }
-}
+// SPEC: 6 record classes
+public final class Warrior extends CharacterClass {}
 

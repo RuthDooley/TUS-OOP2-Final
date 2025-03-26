@@ -1,9 +1,5 @@
 package characters;
 
-public record Cleric() implements CharacterClass {
-    @Override
-    public String getDescription() {
-        return "sample";
-    }
-}
+// SPEC: 6 record classes
+public final class Cleric extends CharacterClass {}
 

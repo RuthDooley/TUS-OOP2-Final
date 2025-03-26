@@ -1,3 +1,4 @@
 package cards;
 
-public record MonsterCard(String name, String description, int strength) implements DoorCard {}
+// SPEC: 6 record classes
+public record MonsterCard(int level, String typeImmmune, int treasureDrop, String description) implements DoorCard {}
