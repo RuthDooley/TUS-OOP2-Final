@@ -165,6 +165,42 @@ public class App {
         options.add("OPt 4");
         GameUI.printTurnOptions(player, options);
 
+        // Game loop
+        int turnCount = 0;
+        while (true) {
+            // Step 1: Get the options for turn and print
+            ArrayList<String> turnOptions = calculateTurnOptions(); // TODO: 
+            GameUI.printTurnOptions(player, turnOptions);
+
+            // Step 2: Reciev user input
+            String userInput = getPlayerChoice(); // TODO: Lambda?
+
+            // Step 3: If decison is not to play monster from hand or draw door card, excute action of card chosen
+            if (!userInput.equals("draw door card") && !userInput.equals("play monster from hand")) {
+                executeCardAction(userInput); // TODO
+            } else {
+                turnCount++;
+                Card drawnCard = drawDoorCard(); // TODO: Lambda?
+
+                if (drawnCard instanceof MonsterCard monsterCard) {
+                    triggerCombat(monsterCard);
+                } else if (drawnCard instanceof CurseCard curseCard) {
+                    applyCurse(curseCard); // TODO: Lambda?
+                } else {
+                    player.addCardToHand(drawnCard);
+                    drawTreasureCard(); // TODO: Lambda?
+                }
+            }
+
+            // Step 4: Check for win/loss conditions
+            if (player.getTokens() >= 10) {
+                // TODO: WIN EVENT
+                break;
+            } else if (player.getTokens() <= 0) {
+                // TODO: LOSE EVENT
+                break;
+            }
+        }
     }
 
     private static final Function<List<? extends Card>, Card> drawCard = deck -> {
@@ -175,8 +211,38 @@ public class App {
         System.out.println("Deck is empty!");
         return null;
     };
-}
 
+    private static void triggerCombat(MonsterCard monsterCard) {
+        while (true) {
+            GameUI.printCombatOptions();
+            String userChoice = getPlayerChoice();
+
+            if (userChoice.equals("play combat boost")) {
+                applyCombatPower();
+            } else if (userChoice.equals("fight monster")) {
+                if (player.getLevel() + player.getArmourValue() + player.getCombatPower() > monsterCard.getLevel()) {
+                    player.gainToken();
+                    break;
+                } else {
+                    triggerRunAway(monsterCard);
+                    break;
+                }
+            } else if (userChoice.equals("run away")) {
+                triggerRunAway(monsterCard);
+                break;
+            }
+        }
+    }
+
+    private static void triggerRunAway(Player player, MonsterCard monsterCard) {
+        player.resetCombatPower();
+        int diceRoll = rollDice(); // Lambda?
+
+        if (diceRoll < 5) {
+            player.loseToken(); // TODO: need to make combat power attributes in player
+        }
+    }
+}
 
 // Monster type, level, run away condition, treasure, description?
 // Armour type, big, class, description?
