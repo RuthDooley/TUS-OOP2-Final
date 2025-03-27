@@ -157,7 +157,16 @@ public class App {
         for (int i = 0; i < Constants.TREASURE_CARD_START_COUNT; i++) 
             player.addCardToHand(drawCard.apply(treasureCardsDeck));
 
-        System.out.println(player);
+
+        ArrayList<String> options = new ArrayList<>();
+        options.add("OPt 1");
+        options.add("OPt 2");
+        options.add("OPt 3");
+        options.add("OPt 4");
+        player.printMoveOptions(options);
+        player.printHand();
+        player.printArmour();
+        player.printTokens();
     }
 
     private static final Function<List<? extends Card>, Card> drawCard = deck -> {

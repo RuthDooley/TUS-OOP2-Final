@@ -8,4 +8,6 @@ public final class Constants {
     // Number of each card that you start with
     public static final int DOOR_CARD_START_COUNT = 2;
     public static final int TREASURE_CARD_START_COUNT = 3;
+
+    public static final int STARTING_TOKENS = 3;
 }
