@@ -163,10 +163,8 @@ public class App {
         options.add("OPt 2");
         options.add("OPt 3");
         options.add("OPt 4");
-        player.printMoveOptions(options);
-        player.printHand();
-        player.printArmour();
-        player.printTokens();
+        GameUI.printTurnOptions(player, options);
+
     }
 
     private static final Function<List<? extends Card>, Card> drawCard = deck -> {
