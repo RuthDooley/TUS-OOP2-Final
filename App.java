@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -147,7 +148,26 @@ public class App {
 
         List<DoorCard> doorDiscardPile = new ArrayList<>();
         List<TreasureCard> treasureDiscardPile = new ArrayList<>();
+
+        // Draw 2 door cards, and 3 treasure cards
+        Player player = new Player();
+        for (int i = 0; i < Constants.DOOR_CARD_START_COUNT; i++) 
+            player.addCardToHand(drawCard.apply(doorCardsDeck));
+
+        for (int i = 0; i < Constants.TREASURE_CARD_START_COUNT; i++) 
+            player.addCardToHand(drawCard.apply(treasureCardsDeck));
+
+        System.out.println(player);
     }
+
+    private static final Function<List<? extends Card>, Card> drawCard = deck -> {
+        // TODO: Maybe handle the empty deck somewhere else
+        if (!deck.isEmpty()) {
+            return deck.remove(0); // Draw the top card
+        }
+        System.out.println("Deck is empty!");
+        return null;
+    };
 }
 
 
