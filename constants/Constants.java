@@ -1,3 +1,4 @@
+package constants;
 public final class Constants {
     
     public static final int CHANGE_CLASS_CARD_COUNT = 15;
@@ -10,4 +11,14 @@ public final class Constants {
     public static final int TREASURE_CARD_START_COUNT = 3;
 
     public static final int STARTING_TOKENS = 3;
+
+    private Constants() {}
+
+    public enum CardUsageType {
+        START_OF_TURN, 
+        COMBAT,        
+        IMMEDIATE      
+    }
+
+    // TODO: Make enum for warrier, wizzrd and cleric types
 }

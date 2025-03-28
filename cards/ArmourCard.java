@@ -1,5 +1,7 @@
 package cards;
 
+import constants.Constants.CardUsageType;
+
 public final class ArmourCard implements TreasureCard {
     private final String name;
     private final int isBig;
@@ -21,6 +23,12 @@ public final class ArmourCard implements TreasureCard {
     @Override
     public String description() {
         return description + " TODO"; // Keeping TODO as you had
+    }
+
+
+    @Override
+    public CardUsageType type() {
+        return CardUsageType.START_OF_TURN;
     }
 
     public String requiredClass() { 

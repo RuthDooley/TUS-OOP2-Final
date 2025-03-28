@@ -3,6 +3,7 @@ import java.util.Collections;
 import java.util.List;
 
 import characters.CharacterClass;
+import constants.Constants;
 import cards.Card;
 import cards.ArmourCard;
 

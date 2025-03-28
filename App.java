@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,16 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import cards.*;
+import constants.Constants;
+import constants.Constants.CardUsageType;
 
 public class App {
     // SPEC: 1 Consumer lambda (Moved outside the method)
     private static final Consumer<List<?>> shuffleDeck = Collections::shuffle;
+    private static final Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
         Path path = Paths.get("card-desc.txt");
 
@@ -166,40 +171,42 @@ public class App {
         GameUI.printTurnOptions(player, options);
 
         // Game loop
+        // TODO: Curse cards in hand must be used immediately
+        // TODO: Ask the user for their gender
         int turnCount = 0;
         while (true) {
             // Step 1: Get the options for turn and print
-            ArrayList<String> turnOptions = calculateTurnOptions(); // TODO: 
-            GameUI.printTurnOptions(player, turnOptions);
+            // ArrayList<String> turnOptions = calculateTurnOptions(); // TODO: 
+            // GameUI.printTurnOptions(player, turnOptions);
 
-            // Step 2: Reciev user input
-            String userInput = getPlayerChoice(); // TODO: Lambda?
+            // Step 2: Recieve user input
+            // String userInput = getPlayerChoice(); // TODO: Lambda?
 
-            // Step 3: If decison is not to play monster from hand or draw door card, excute action of card chosen
-            if (!userInput.equals("draw door card") && !userInput.equals("play monster from hand")) {
-                executeCardAction(userInput); // TODO
-            } else {
-                turnCount++;
-                Card drawnCard = drawDoorCard(); // TODO: Lambda?
+            // // Step 3: If decison is not to play monster from hand or draw door card, excute action of card chosen
+            // if (!userInput.equals("draw door card") && !userInput.equals("play monster from hand")) {
+            //     executeCardAction(userInput); // TODO
+            // } else {
+            //     turnCount++;
+            //     Card drawnCard = drawDoorCard(); // TODO: Lambda?
 
-                if (drawnCard instanceof MonsterCard monsterCard) {
-                    triggerCombat(monsterCard);
-                } else if (drawnCard instanceof CurseCard curseCard) {
-                    applyCurse(curseCard); // TODO: Lambda?
-                } else {
-                    player.addCardToHand(drawnCard);
-                    drawTreasureCard(); // TODO: Lambda?
-                }
-            }
+            //     if (drawnCard instanceof MonsterCard monsterCard) {
+            //         triggerCombat(monsterCard);
+            //     } else if (drawnCard instanceof CurseCard curseCard) {
+            //         applyCurse(curseCard); // TODO: Lambda?
+            //     } else {
+            //         player.addCardToHand(drawnCard);
+            //         drawTreasureCard(); // TODO: Lambda?
+            //     }
+            // }
 
-            // Step 4: Check for win/loss conditions
-            if (player.getTokens() >= 10) {
-                // TODO: WIN EVENT
-                break;
-            } else if (player.getTokens() <= 0) {
-                // TODO: LOSE EVENT
-                break;
-            }
+            // // Step 4: Exit loop if tokens is >= 10 or <= 0
+            // if (player.getTokens() >= 10) {
+            //     // TODO: WIN EVENT
+            //     break;
+            // } else if (player.getTokens() <= 0) {
+            //     // TODO: LOSE EVENT
+            //     break;
+            // }
         }
     }
 
@@ -212,36 +219,87 @@ public class App {
         return null;
     };
 
-    private static void triggerCombat(MonsterCard monsterCard) {
-        while (true) {
-            GameUI.printCombatOptions();
-            String userChoice = getPlayerChoice();
+    // private static void triggerCombat(MonsterCard monsterCard) {
+    //     while (true) {
+    //         GameUI.printCombatOptions();
+    //         String userChoice = getPlayerChoice();
 
-            if (userChoice.equals("play combat boost")) {
-                applyCombatPower();
-            } else if (userChoice.equals("fight monster")) {
-                if (player.getLevel() + player.getArmourValue() + player.getCombatPower() > monsterCard.getLevel()) {
-                    player.gainToken();
-                    break;
+    //         if (userChoice.equals("play combat boost")) {
+    //             applyCombatPower();
+    //         } else if (userChoice.equals("fight monster")) {
+    //             if (player.getLevel() + player.getArmourValue() + player.getCombatPower() > monsterCard.getLevel()) {
+    //                 player.gainToken();
+    //                 break;
+    //             } else {
+    //                 triggerRunAway(monsterCard);
+    //                 break;
+    //             }
+    //         } else if (userChoice.equals("run away")) {
+    //             triggerRunAway(monsterCard);
+    //             break;
+    //         }
+    //     }
+    // }
+
+    // private static void triggerRunAway(Player player, MonsterCard monsterCard) {
+    //     player.resetCombatPower();
+    //     int diceRoll = rollDice(); // Lambda?
+
+    //     if (diceRoll < 5) {
+    //         player.loseToken(); // TODO: need to make combat power attributes in player
+    //     }
+    // }
+
+    public static int getUserInput(ArrayList<String> options) {
+        int choice = -1;
+
+        while (true) {
+            try {
+                String input = scanner.nextLine();
+                choice = Integer.parseInt(input);
+
+                if (choice >= 1 && choice <= options.size()) {
+                    return choice;
                 } else {
-                    triggerRunAway(monsterCard);
-                    break;
+                    System.out.println("Please enter a number between 1 and " + options.size());
                 }
-            } else if (userChoice.equals("run away")) {
-                triggerRunAway(monsterCard);
-                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number!");
             }
         }
     }
 
-    private static void triggerRunAway(Player player, MonsterCard monsterCard) {
-        player.resetCombatPower();
-        int diceRoll = rollDice(); // Lambda?
+    public static void calculateTurnOptionsStart(Player player) {
+        /**
+         * The options on turn start are
+         * 1. Play monster from hand
+         * 2. Equip armour from hand
+         * 3. Change class from card from hand
+         * 4. Change gender from card from hand
+         * 5. Use level up card from hand
+         * 6. Draw door card
+         */
 
-        if (diceRoll < 5) {
-            player.loseToken(); // TODO: need to make combat power attributes in player
+        ArrayList<Card> validCards = new ArrayList<>();
+        ArrayList<String> turnOptionsStart = new ArrayList<>();
+        
+        // Assuming Player has a method getHand() that returns a list of Cards
+        for (Card card : player.getHand()) {
+            if (card.type() == CardUsageType.START_OF_TURN) {
+                validCards.add(card);
+            }
         }
+        // Add to valid cards 
+        turnOptionsStart.add("Draw a door card.");
+
+        // TODO: Need to pull the options from the description of the valid crads
+
+        // TODO: Actually return the card lists not print, and probably can lambvda this
     }
+
+    // TODO: Work needs ot be done to see where to put all of these
+    // TODO: Meet •	collections/generics - for example: use of Comparator.comparing() for sorting •	concurrency e.g. using ExecutorService to process a list of Callable’s
+
 }
 
 // Monster type, level, run away condition, treasure, description?
