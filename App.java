@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +25,35 @@ public class App {
     // SPEC: 1 Consumer lambda (Moved outside the method)
     private static final Consumer<List<?>> shuffleDeck = Collections::shuffle;
     private static final Scanner scanner = new Scanner(System.in);
+
+    static List<DoorCard> doorCardsDeck = new ArrayList<>();
+    static List<TreasureCard> treasureCardsDeck = new ArrayList<>();
+
+    static List<DoorCard> doorDiscardPile = new ArrayList<>();
+    static List<TreasureCard> treasureDiscardPile = new ArrayList<>();
+
+    private static final Supplier<Card> drawDoorCard = () -> {
+        // if (doorCardsDeck.isEmpty()) {
+        //     TODO: Event for no cards
+        // }
+
+        DoorCard drawnCard = doorCardsDeck.remove(0);
+        doorDiscardPile.add(drawnCard);
+
+        return drawnCard;
+    };
+
+    private static final Supplier<Card> drawTreasureCard = () -> {
+        // if (doorCardsDeck.isEmpty()) {
+        //     TODO: Event for no cards
+        // }
+
+        TreasureCard drawnCard = treasureCardsDeck.remove(0);
+        treasureDiscardPile.add(drawnCard);
+
+        return drawnCard;
+    };
+
     public static void main(String[] args) {
         Path path = Paths.get("card-desc.txt");
 
@@ -137,22 +167,17 @@ public class App {
                     })
                     .collect(Collectors.toList());
 
-        List<DoorCard> doorCardsDeck = new ArrayList<>();
         doorCardsDeck.addAll(monsterCards);
         doorCardsDeck.addAll(changeClassCards);
         doorCardsDeck.addAll(changeGenderCards);
         doorCardsDeck.addAll(curseCards);
 
-        List<TreasureCard> treasureCardsDeck = new ArrayList<>();
         treasureCardsDeck.addAll(levelUpCards);
         treasureCardsDeck.addAll(armourCards);
         treasureCardsDeck.addAll(combatPowerCards);
 
         shuffleDeck.accept(doorCardsDeck);
         shuffleDeck.accept(treasureCardsDeck);
-
-        List<DoorCard> doorDiscardPile = new ArrayList<>();
-        List<TreasureCard> treasureDiscardPile = new ArrayList<>();
 
         // Draw 2 door cards, and 3 treasure cards
         Player player = new Player();
@@ -170,13 +195,32 @@ public class App {
         options.add("OPt 4");
         GameUI.printTurnOptions(player, options);
 
+        // Draw a door card, return the card drawn and add to the appropriate discard pile
+
+
         // Game loop
         // TODO: Curse cards in hand must be used immediately
         // TODO: Ask the user for their gender
         int turnCount = 0;
         while (true) {
             // Step 1: Get the options for turn and print
-            // ArrayList<String> turnOptions = calculateTurnOptions(); // TODO: 
+            String selectedOption = calculateTurnOptionsStart(player);
+            System.out.println(selectedOption);
+
+            switch (selectedOption) {
+                case "Draw a Door Card" -> {
+                    DoorCard drawnCard = (DoorCard) drawDoorCard.get();
+            
+                    if (drawnCard instanceof MonsterCard monster) {
+                        // triggerCombat(monster);
+                    } else {
+                        player.addCardToHand(drawnCard);
+                    }
+                }
+                // default -> playCard(getCardByName(selectedOption, player), player); // TODO: MAKE FUNCTIONALITY
+            }
+            // break;
+            // ArrayList<String> turnOptions = calculateTurnOptionsStart(player); // TODO: 
             // GameUI.printTurnOptions(player, turnOptions);
 
             // Step 2: Recieve user input
@@ -269,9 +313,14 @@ public class App {
         }
     }
 
-    public static void calculateTurnOptionsStart(Player player) {
+    /**
+     * Return a list of Cards that can be played at the start of the turn.
+     * In the main game loop the array list of strings in option menu will be generated
+     * @param player
+     */
+    public static String calculateTurnOptionsStart(Player player) {
         /**
-         * The options on turn start are
+         * The options on turn start are:
          * 1. Play monster from hand
          * 2. Equip armour from hand
          * 3. Change class from card from hand
@@ -280,25 +329,44 @@ public class App {
          * 6. Draw door card
          */
 
-        ArrayList<Card> validCards = new ArrayList<>();
-        ArrayList<String> turnOptionsStart = new ArrayList<>();
-        
-        // Assuming Player has a method getHand() that returns a list of Cards
+        ArrayList<String> optionsStart = new ArrayList<>();
+     
+        optionsStart.add("Draw a Door Card");
+     
         for (Card card : player.getHand()) {
             if (card.type() == CardUsageType.START_OF_TURN) {
-                validCards.add(card);
+                optionsStart.add("Play " + card.name());
             }
         }
-        // Add to valid cards 
-        turnOptionsStart.add("Draw a door card.");
 
-        // TODO: Need to pull the options from the description of the valid crads
-
-        // TODO: Actually return the card lists not print, and probably can lambvda this
+        optionsStart.add("Save & Exit");
+     
+        // Display options
+        System.out.println("Choose an action:");
+        for (int i = 0; i < optionsStart.size(); i++) {
+            System.out.println((i + 1) + ". " + optionsStart.get(i));
+        }
+     
+        // TODO: Continue to ask for choice if not a valid choice
+        int choice = getUserInput(optionsStart);
+        return optionsStart.get(choice - 1); 
     }
 
-    // TODO: Work needs ot be done to see where to put all of these
-    // TODO: Meet •	collections/generics - for example: use of Comparator.comparing() for sorting •	concurrency e.g. using ExecutorService to process a list of Callable’s
+    // /**
+    //  * Draw door card from door card deck.
+    //  * If it's a monster card, trigger combat, else add to hand
+    //  */
+    // public static void drawDoorCard(){
+    //     // Draw a door card
+    //     Card drawnCard = drawCard.apply(doorCardsDeck);
+    //     player.addCardToHand(drawnCard);
+
+    //     if (drawnCard instanceof MonsterCard monsterCard) {
+    //         triggerCombat(monsterCard);
+    //     } else if (drawnCard instanceof CurseCard curseCard) {
+    //         applyCurse(curseCard);
+    //     }
+    // }
 
 }
 
