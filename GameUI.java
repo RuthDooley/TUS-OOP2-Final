@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import cards.Card;
+import player.Player;
 
 public class GameUI {
     /**
@@ -11,15 +12,23 @@ public class GameUI {
 
     // UI 1
     public static void printTurnOptions(Player player, ArrayList<String> options) {
-        System.out.println("Choose an action:");
+        System.out.println("--------------------------------------------------------------------------------");
         player.printTokens();
+        System.out.println("Gender: " + player.getGender());
+        System.out.println("Class: " + player.getClass());
+        System.out.println("");
+
         player.printArmour();
+        System.out.println("");
         player.printHand();
+        System.out.println("");
+        System.out.println("Choose an action:");
         player.printMoveOptions(options);
     }
 
     // UI 2
     public static void printDrawnCard(Card card) {
+        System.out.println("--------------------------------- Drawn card: ---------------------------------");
         System.out.println(card.printCard());
     }
 

@@ -1,8 +1,8 @@
+package player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import characters.CharacterClass;
 import constants.Constants;
 import cards.Card;
 import cards.CombatPowerCard;
@@ -10,7 +10,7 @@ import cards.ArmourCard;
 
 public class Player {
     private String gender;
-    private CharacterClass characterClass;
+    private String characterClass;
     private int tokens;
     private final List<Card> hand;
     private final List<ArmourCard> armour;
@@ -33,11 +33,11 @@ public class Player {
         this.gender = gender;
     }
 
-    public CharacterClass getCharacterClass() {
+    public String getCharacterClass() {
         return characterClass;
     }
 
-    public void setCharacterClass(CharacterClass characterClass) {
+    public void setCharacterClass(String characterClass) {
         this.characterClass = characterClass;
     }
 
@@ -111,7 +111,7 @@ public class Player {
         return Collections.unmodifiableList(combatPowerCards);
     }
 
-    public void addCombatPowerCard(CombatPowerCard card) {
+    public void addCombatPowerCardToHand(CombatPowerCard card) {
         if (card != null) {
             combatPowerCards.add(card);
         }

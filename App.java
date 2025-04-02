@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 import cards.*;
 import constants.Constants;
 import constants.Constants.CardUsageType;
+import player.Player;
 
 public class App {
     static Player player = new Player();
@@ -104,8 +105,10 @@ public class App {
                         int treasureDrop = Integer.parseInt(data[2].trim()); 
                         String name = data[3].trim();
                         String description = "Lvl " + level + " monster, " + typeImmmune + " + 1 combat power, defeat yields " + treasureDrop + " treasures";
-
-                        return new MonsterCard(name, level, typeImmmune, treasureDrop, description);
+                        Runnable action = () -> {
+                            System.out.println("TODO, Sample for now");
+                        };
+                        return new MonsterCard(name, level, typeImmmune, treasureDrop, description, action);
                     })
                     .collect(Collectors.toList());
 
@@ -129,13 +132,32 @@ public class App {
 
         // * Curse cards
         List<CurseCard> curseCards = new ArrayList<>();
+        String[] curses = {"lose lvl", "lose armour", "lose class"};
+        
         for (int i = 0; i < Constants.CURSE_CARD_COUNT; i++) {
-            String[] curses = {"lose lvl", "lose armour", "lose class"}; // Losing
             String randomCurse = curses[(int) (Math.random() * curses.length)];
-            CurseCard card = new CurseCard(randomCurse, "TODO");
+        
+            Runnable action = switch (randomCurse) {
+                case "lose lvl" -> () -> player.removeToken();
+                case "lose armour" -> {
+                    if (!player.getArmour().isEmpty()) {
+                        yield () -> {
+                            List<ArmourCard> armours = player.getArmour();
+                            int random = new Random().nextInt(armours.size());
+                            player.removeArmour(armours.get(random));
+                        };
+                    } else {
+                        yield () -> System.out.println("No armour equipped");
+                    }
+                }
+                case "lose class" -> () -> player.setCharacterClass(null);
+                default -> () -> System.out.println("No valid curse applied");
+            };
+        
+            CurseCard card = new CurseCard(randomCurse, "Instantly " + randomCurse, action);
             curseCards.add(card);
         }
-
+        
         // ** TREASURE CARDS
 
         // * Level up cards
@@ -207,24 +229,25 @@ public class App {
             switch (selectedOption) {
                 case "Draw a Door Card" -> {
                     DoorCard drawnCard = (DoorCard) drawDoorCard.get();
+                    GameUI.printDrawnCard(drawnCard);
             
+                    // TODO: Make into switch statement with pattemr matching 
                     if (drawnCard instanceof MonsterCard monster) {
                         triggerCombat(monster);
                     } else if (drawnCard instanceof CurseCard curse) {
                         System.out.println(curse.name());
-                        // Parse the card from the selected
-
-                        // Complete curse action
-                        // if 
-                        
-                        // TODO: If drawn card is curse play instantly
                     } else {
-                        player.addCardToHand(drawnCard);
+                        
                     }
                 }
-                // default -> {
-                //     playCard(getCardByName(selectedOption, player), player);
-                // } // TODO: MAKE FUNCTIONALITY
+                default -> {
+                    Card selectedCard = parseCardFromOptionString("Play ", selectedOption);
+                    if (selectedCard instanceof ArmourCard armourCard){
+                        armourCard.play(player);
+                    }
+                    System.out.println(selectedCard.name());
+                    // TODO: Do the action for this card
+                }
             }
 
 
@@ -277,6 +300,7 @@ public class App {
                     if (player.getTokens() + player.getArmourValue() + player.getCombatPower() > monster.getLevel()) {
                             player.addToken();
                             player.clearCombatPowerCards();
+                            // TODO: Need to put them into their respective piles
                             break;
                         }
                     }
@@ -292,6 +316,7 @@ public class App {
 
     private static void triggerRunAway(MonsterCard monster) {
         player.clearCombatPowerCards();
+        // TODO: Need to put them into their respective piles
         int diceRoll = new Random().nextInt(6) + 1;
 
         if (diceRoll < 5) {
@@ -378,6 +403,19 @@ public class App {
         // TODO: Continue to ask for choice if not a valid choice
         int choice = getUserInput(optionsCombat);
         return optionsCombat.get(choice - 1); 
+    }
+
+    // Return the card from the player's hand given the option string
+    public static Card parseCardFromOptionString(String stringToParseOut, String option) {
+        String cardName = option.replace(stringToParseOut, "").trim();
+
+        // Cycle through the player's hand to find the card by name
+        for (Card card : player.getHand()) {
+            if (card.name().equals(cardName)) {
+                return card;
+            }
+        }
+        return null;
     }
 }
 
