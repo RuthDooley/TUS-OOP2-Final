@@ -9,7 +9,7 @@ public sealed interface Card permits DoorCard, TreasureCard {
 
     // TODO, do this out better at end with proper dash art
     default String printCard() {
-        return "Card: " + name() + " " + description() + " " + this.getClass().getSimpleName();
+        return "Card: " + name() + " | " + description() + " | " + this.getClass().getSimpleName();
     }
 }
 

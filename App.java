@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +21,8 @@ import constants.Constants;
 import constants.Constants.CardUsageType;
 
 public class App {
+    static Player player = new Player();
+
     // SPEC: 1 Consumer lambda (Moved outside the method)
     private static final Consumer<List<?>> shuffleDeck = Collections::shuffle;
     private static final Scanner scanner = new Scanner(System.in);
@@ -99,11 +100,12 @@ public class App {
         monsterCards = inputCards.get("monster").stream()
                     .map(data -> {
                         int level = Integer.parseInt(data[0].trim());
-                        String typeImmmune = data[1].trim();
+                        String typeImmmune = data[1].trim(); // TODO, instead of immune type add exxtra combat points
                         int treasureDrop = Integer.parseInt(data[2].trim()); 
-                        String description = data.length > 4 ? data[3].trim() : ""; 
+                        String name = data[3].trim();
+                        String description = "Lvl " + level + " monster, " + typeImmmune + " + 1 combat power, defeat yields " + treasureDrop + " treasures";
 
-                        return new MonsterCard(level, typeImmmune, treasureDrop, description);
+                        return new MonsterCard(name, level, typeImmmune, treasureDrop, description);
                     })
                     .collect(Collectors.toList());
 
@@ -128,7 +130,7 @@ public class App {
         // * Curse cards
         List<CurseCard> curseCards = new ArrayList<>();
         for (int i = 0; i < Constants.CURSE_CARD_COUNT; i++) {
-            String[] curses = {"life", "armour", "class"}; // Losing
+            String[] curses = {"lose lvl", "lose armour", "lose class"}; // Losing
             String randomCurse = curses[(int) (Math.random() * curses.length)];
             CurseCard card = new CurseCard(randomCurse, "TODO");
             curseCards.add(card);
@@ -139,7 +141,7 @@ public class App {
         // * Level up cards
         List<LevelUpCard> levelUpCards = new ArrayList<>();
         for (int i = 0; i < Constants.LEVEL_UP_CARD_COUNT; i++) {
-            LevelUpCard card = new LevelUpCard();
+            LevelUpCard card = new LevelUpCard("+1 Level");
             levelUpCards.add(card);
         }
 
@@ -147,11 +149,13 @@ public class App {
         List<ArmourCard> armourCards = new ArrayList<>();
         armourCards = inputCards.get("armour").stream()
                     .map(data -> {
-                        int isBig = Integer.parseInt(data[0].trim());
-                        String requiredClass = data[1].trim();
-                        String description = data.length > 3 ? data[2].trim() : ""; 
+                        int value = Integer.parseInt(data[0].trim());
+                        int isBig = Integer.parseInt(data[1].trim());
+                        String requiredClass = data[2].trim();
+                        String name = data[3].trim();
+                        String description = "Add +" + value + " lvl in combat for " + requiredClass;
 
-                        return new ArmourCard("TODO", isBig, requiredClass, description);
+                        return new ArmourCard(name, value, isBig, requiredClass, description);
                     })
                     .collect(Collectors.toList());
 
@@ -160,10 +164,11 @@ public class App {
         combatPowerCards = inputCards.get("combat").stream()
                     .map(data -> {
                         int monsterLvl = Integer.parseInt(data[0].trim());
-                        String description = data.length > 3 ? data[1].trim() : ""; 
+                        String name = data[1].trim();
                         int bonusPower = new Random().nextInt(3) + 1; // 1 - 3 inclusive
+                        String description = "Add +" + bonusPower + " lvl in combat for monster lvl >=" + monsterLvl;
 
-                        return new CombatPowerCard("TODO", monsterLvl, bonusPower, description);
+                        return new CombatPowerCard(name, monsterLvl, bonusPower, description);
                     })
                     .collect(Collectors.toList());
 
@@ -180,20 +185,11 @@ public class App {
         shuffleDeck.accept(treasureCardsDeck);
 
         // Draw 2 door cards, and 3 treasure cards
-        Player player = new Player();
         for (int i = 0; i < Constants.DOOR_CARD_START_COUNT; i++) 
             player.addCardToHand(drawCard.apply(doorCardsDeck));
 
         for (int i = 0; i < Constants.TREASURE_CARD_START_COUNT; i++) 
             player.addCardToHand(drawCard.apply(treasureCardsDeck));
-
-
-        ArrayList<String> options = new ArrayList<>();
-        options.add("OPt 1");
-        options.add("OPt 2");
-        options.add("OPt 3");
-        options.add("OPt 4");
-        GameUI.printTurnOptions(player, options);
 
         // Draw a door card, return the card drawn and add to the appropriate discard pile
 
@@ -202,26 +198,35 @@ public class App {
         // TODO: Curse cards in hand must be used immediately
         // TODO: Ask the user for their gender
         int turnCount = 0;
+        int turnCycle = 0;
         while (true) {
-            // Step 1: Get the options for turn and print
-            String selectedOption = calculateTurnOptionsStart(player);
-            System.out.println(selectedOption);
 
+            // Get the options for turn and print
+            String selectedOption = calculateTurnOptionsStart();
+            
             switch (selectedOption) {
                 case "Draw a Door Card" -> {
                     DoorCard drawnCard = (DoorCard) drawDoorCard.get();
             
                     if (drawnCard instanceof MonsterCard monster) {
-                        // triggerCombat(monster);
+                        triggerCombat(monster);
+                    } else if (drawnCard instanceof CurseCard curse) {
+                        System.out.println(curse.name());
+                        // Parse the card from the selected
+
+                        // Complete curse action
+                        // if 
+                        
+                        // TODO: If drawn card is curse play instantly
                     } else {
                         player.addCardToHand(drawnCard);
                     }
                 }
-                // default -> playCard(getCardByName(selectedOption, player), player); // TODO: MAKE FUNCTIONALITY
+                // default -> {
+                //     playCard(getCardByName(selectedOption, player), player);
+                // } // TODO: MAKE FUNCTIONALITY
             }
-            // break;
-            // ArrayList<String> turnOptions = calculateTurnOptionsStart(player); // TODO: 
-            // GameUI.printTurnOptions(player, turnOptions);
+
 
             // Step 2: Recieve user input
             // String userInput = getPlayerChoice(); // TODO: Lambda?
@@ -263,36 +268,36 @@ public class App {
         return null;
     };
 
-    // private static void triggerCombat(MonsterCard monsterCard) {
-    //     while (true) {
-    //         GameUI.printCombatOptions();
-    //         String userChoice = getPlayerChoice();
+    private static void triggerCombat(MonsterCard monster) {
+        while (true) {
+            String selectedOption = calculateTurnOptionsStart();
 
-    //         if (userChoice.equals("play combat boost")) {
-    //             applyCombatPower();
-    //         } else if (userChoice.equals("fight monster")) {
-    //             if (player.getLevel() + player.getArmourValue() + player.getCombatPower() > monsterCard.getLevel()) {
-    //                 player.gainToken();
-    //                 break;
-    //             } else {
-    //                 triggerRunAway(monsterCard);
-    //                 break;
-    //             }
-    //         } else if (userChoice.equals("run away")) {
-    //             triggerRunAway(monsterCard);
-    //             break;
-    //         }
-    //     }
-    // }
+            switch (selectedOption) {
+                case "Fight Monster" -> {
+                    if (player.getTokens() + player.getArmourValue() + player.getCombatPower() > monster.getLevel()) {
+                            player.addToken();
+                            player.clearCombatPowerCards();
+                            break;
+                        }
+                    }
+                case "Run Away" -> triggerRunAway(monster);
+                default -> {
+                    // Parse the combat power card from the option selected
 
-    // private static void triggerRunAway(Player player, MonsterCard monsterCard) {
-    //     player.resetCombatPower();
-    //     int diceRoll = rollDice(); // Lambda?
+                    // equipCombatPower(selectedOption);
+                }
+            }
+        }
+    }
 
-    //     if (diceRoll < 5) {
-    //         player.loseToken(); // TODO: need to make combat power attributes in player
-    //     }
-    // }
+    private static void triggerRunAway(MonsterCard monster) {
+        player.clearCombatPowerCards();
+        int diceRoll = new Random().nextInt(6) + 1;
+
+        if (diceRoll < 5) {
+            player.removeToken();
+        }
+    }
 
     public static int getUserInput(ArrayList<String> options) {
         int choice = -1;
@@ -316,9 +321,8 @@ public class App {
     /**
      * Return a list of Cards that can be played at the start of the turn.
      * In the main game loop the array list of strings in option menu will be generated
-     * @param player
      */
-    public static String calculateTurnOptionsStart(Player player) {
+    public static String calculateTurnOptionsStart() {
         /**
          * The options on turn start are:
          * 1. Play monster from hand
@@ -342,32 +346,39 @@ public class App {
         optionsStart.add("Save & Exit");
      
         // Display options
-        System.out.println("Choose an action:");
-        for (int i = 0; i < optionsStart.size(); i++) {
-            System.out.println((i + 1) + ". " + optionsStart.get(i));
-        }
+        GameUI.printTurnOptions(player, optionsStart);
      
         // TODO: Continue to ask for choice if not a valid choice
         int choice = getUserInput(optionsStart);
         return optionsStart.get(choice - 1); 
     }
 
-    // /**
-    //  * Draw door card from door card deck.
-    //  * If it's a monster card, trigger combat, else add to hand
-    //  */
-    // public static void drawDoorCard(){
-    //     // Draw a door card
-    //     Card drawnCard = drawCard.apply(doorCardsDeck);
-    //     player.addCardToHand(drawnCard);
+    public static String calculateTurnOptionsCombat(MonsterCard monster) {
+        /**
+         * The options on combat are:
+         * 1. Play combat power cards from hand
+         * 2. Fight monster
+         * 3. Run away
+         */
 
-    //     if (drawnCard instanceof MonsterCard monsterCard) {
-    //         triggerCombat(monsterCard);
-    //     } else if (drawnCard instanceof CurseCard curseCard) {
-    //         applyCurse(curseCard);
-    //     }
-    // }
+        ArrayList<String> optionsCombat = new ArrayList<>();
+     
+        for (Card card : player.getHand()) {
+            if (card.type() == CardUsageType.COMBAT) {
+                optionsCombat.add("Play " + card.name());
+            }
+        }
 
+        optionsCombat.add("Fight Monster");
+        optionsCombat.add("Run Away");
+     
+        // Display options
+        GameUI.printCombatOptions(player, monster, optionsCombat);
+     
+        // TODO: Continue to ask for choice if not a valid choice
+        int choice = getUserInput(optionsCombat);
+        return optionsCombat.get(choice - 1); 
+    }
 }
 
 // Monster type, level, run away condition, treasure, description?

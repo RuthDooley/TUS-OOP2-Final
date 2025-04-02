@@ -4,12 +4,15 @@ import constants.Constants.CardUsageType;
 
 public final class ArmourCard implements TreasureCard {
     private final String name;
+    private final int value;
     private final int isBig;
     private final String description;
     private final String requiredClass;
 
-    public ArmourCard(String name, int isBig, String requiredClass, String description) {
-        this.name = name != null ? name : "Armour";
+    public ArmourCard(String name, int value, int isBig, String requiredClass, String description) {
+        this.name = name;
+        System.out.println("ArmourCard: " + name + " created.");
+        this.value = value;
         this.isBig = isBig;
         this.description = description != null ? description : "No description available.";
         this.requiredClass = requiredClass != null ? requiredClass : "None";
@@ -22,7 +25,7 @@ public final class ArmourCard implements TreasureCard {
 
     @Override
     public String description() {
-        return description + " TODO"; // Keeping TODO as you had
+        return description;
     }
 
 
@@ -37,5 +40,9 @@ public final class ArmourCard implements TreasureCard {
     
     public int isBig() { 
         return isBig; 
+    }
+
+    public int value() { 
+        return value; 
     }
 }

@@ -3,15 +3,10 @@ package cards;
 import constants.Constants.CardUsageType;
 
 // SPEC: 6 record classes
-public record ChangeGenderCard(String newGender) implements DoorCard {
-    @Override
-    public String name() {
-        return "";
-    }
-
+public record ChangeGenderCard(String name) implements DoorCard {
     @Override
     public String description() {
-        return "TODO";
+        return "Change gender to " + name;
     }
 
     @Override

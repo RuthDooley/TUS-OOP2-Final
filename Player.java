@@ -5,6 +5,7 @@ import java.util.List;
 import characters.CharacterClass;
 import constants.Constants;
 import cards.Card;
+import cards.CombatPowerCard;
 import cards.ArmourCard;
 
 public class Player {
@@ -13,6 +14,7 @@ public class Player {
     private int tokens;
     private final List<Card> hand;
     private final List<ArmourCard> armour;
+    private final List<CombatPowerCard> combatPowerCards;
 
     public Player() {
         this.gender = "male";
@@ -20,6 +22,7 @@ public class Player {
         this.tokens = Constants.STARTING_TOKENS; 
         this.hand = new ArrayList<>();
         this.armour = new ArrayList<>();
+        this.combatPowerCards = new ArrayList<>();
     }
 
     public String getGender() {
@@ -86,13 +89,6 @@ public class Player {
         armour.remove(armourCard);
     }
 
-    public void setArmour(List<ArmourCard> newArmour) {
-        this.armour.clear();
-        if (newArmour != null) {
-            this.armour.addAll(newArmour);
-        }
-    }
-
     // SPEC: 2a intermediate operations, .forEach()
     public void printArmour() {
         System.out.println("Armour:");
@@ -101,6 +97,36 @@ public class Player {
             return;
         }
         armour.forEach(card -> System.out.println(card.printCard()));
+    }
+
+    public int getArmourValue() {
+        int totalArmourValue = 0;
+        for (ArmourCard armourCard : armour) {
+            totalArmourValue += armourCard.value();
+        }
+        return totalArmourValue;
+    }
+
+    public List<Card> getCombatPowerCards() {
+        return Collections.unmodifiableList(combatPowerCards);
+    }
+
+    public void addCombatPowerCard(CombatPowerCard card) {
+        if (card != null) {
+            combatPowerCards.add(card);
+        }
+    }
+
+    public void clearCombatPowerCards() {
+        combatPowerCards.clear();
+    }
+
+    public int getCombatPower() {
+        int totalCombatPower = 0;
+        for (CombatPowerCard card : combatPowerCards) {
+            totalCombatPower += card.bonusPower();
+        }
+        return totalCombatPower;
     }
 
     // SPEC: 2a intermediate operations, .forEach()

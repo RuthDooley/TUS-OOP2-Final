@@ -1,70 +1,70 @@
-monster, 2, cleric, 0, example
-monster, 2, warrier, 0, example
-monster, 3, cleric, 0, example
-monster, 4, female, 0, example
-monster, 5, warrier, 1, example
-monster, 6, male, 1, example
-monster, 7, male, 1, example
-monster, 8, wizard, 1, example
-monster, 9, female, 1, example
-monster, 10, cleric, 1, example
-monster, 10, wizard, 1, example
-monster, 11, warrier, 1, example
-monster, 12, female, 1, example
-monster, 12, cleric, 1, example
-monster, 13, male, 2, example
-monster, 14, warrier, 2, example
-monster, 15, wizard, 2, example
-monster, 16, female, 2, example
-monster, 17, warrier, 2, example
-monster, 18, cleric, 2, example
-armour, 0, warrier, example
-armour, 0, cleric, example
-armour, 1, wizard, example
-armour, 1, warrier, example
-armour, 0, cleric, example
-armour, 0, wizard, example
-armour, 0, warrier, example
-armour, 1, cleric, example
-armour, 0, wizard, example
-armour, 0, warrier, example
-armour, 0, cleric, example
-armour, 1, wizard, example
-armour, 1, warrier, example
-armour, 0, cleric, example
-armour, 0, wizard, example
-armour, 0, warrier, example
-armour, 1, cleric, example
-armour, 0, wizard, example
-armour, 0, warrier, example
-armour, 0, cleric, example
-armour, 1, wizard, example
-armour, 1, warrier, example
-armour, 0, cleric, example
-armour, 0, wizard, example
-armour, 0, warrier, example
-armour, 1, cleric, example
-armour, 0, wizard, example
-armour, 0, warrier, example
-armour, 0, cleric, example
-armour, 1, wizard, example
-armour, 1, warrier, example
-armour, 0, cleric, example
-armour, 0, wizard, example
-armour, 0, warrier, example
-armour, 1, cleric, example
-combat, 15, example
-combat, 16, example
-combat, 17, example
-combat, 15, example
-combat, 16, example
-combat, 17, example
-combat, 15, example
-combat, 16, example
-combat, 17, example
-combat, 15, example
-combat, 16, example
-combat, 17, example
-combat, 15, example
-combat, 13, example
-combat, 14, example
+monster, 2, cleric, 0, ghoul
+monster, 2, warrier, 0, banshee
+monster, 3, cleric, 0, wraith
+monster, 4, female, 0, harpy
+monster, 5, warrier, 1, gargoyle
+monster, 6, male, 1, minotaur
+monster, 7, male, 1, ogre
+monster, 8, wizard, 1, lich
+monster, 9, female, 1, siren
+monster, 10, cleric, 1, vampire
+monster, 10, wizard, 1, sorcerer
+monster, 11, warrier, 1, cyclops
+monster, 12, female, 1, medusa
+monster, 12, cleric, 1, priestess
+monster, 13, male, 2, warlock
+monster, 14, warrier, 2, titan
+monster, 15, wizard, 2, necromancer
+monster, 16, female, 2, valkyrie
+monster, 17, warrier, 2, champion
+monster, 18, cleric, 2, highpriest
+armour, 1, 0, warrier, shield
+armour, 2, 0, cleric, robes
+armour, 3, 1, wizard, cloak
+armour, 1, 1, warrier, helmet
+armour, 2, 0, cleric, tunic
+armour, 3, 0, wizard, mantle
+armour, 1, 0, warrier, gauntlets
+armour, 2, 1, cleric, vestments
+armour, 3, 0, wizard, hood
+armour, 1, 0, warrier, greaves
+armour, 2, 0, cleric, cassock
+armour, 3, 1, wizard, mysticrobe
+armour, 1, 1, warrier, chestplate
+armour, 2, 0, cleric, surplice
+armour, 3, 0, wizard, arcaneveil
+armour, 1, 0, warrier, pauldrons
+armour, 2, 1, cleric, habit
+armour, 3, 0, wizard, spellcloak
+armour, 1, 0, warrier, boots
+armour, 2, 0, cleric, scapular
+armour, 3, 1, wizard, sorcererwrap
+armour, 1, 1, warrier, cuirass
+armour, 2, 0, cleric, ephod
+armour, 3, 0, wizard, enchanterrobe
+armour, 1, 0, warrier, leggings
+armour, 2, 1, cleric, alb
+armour, 3, 0, wizard, divinemantle
+armour, 1, 0, warrier, vambraces
+armour, 2, 0, cleric, stole
+armour, 3, 1, wizard, magushabit
+armour, 1, 1, warrier, chainmail
+armour, 2, 0, cleric, chasuble
+armour, 3, 0, wizard, mysticgarb
+armour, 1, 0, warrier, mailboots
+armour, 2, 1, cleric, tabard
+combat, 15, smite
+combat, 16, fireball
+combat, 17, shadowstrike
+combat, 15, whirlwind
+combat, 16, thunderclap
+combat, 17, deathcurse
+combat, 15, bladefury
+combat, 16, frostbolt
+combat, 17, soulreap
+combat, 15, divineblast
+combat, 16, earthquake
+combat, 17, mindcontrol
+combat, 15, warcry
+combat, 13, poisonfang
+combat, 14, bloodletting
