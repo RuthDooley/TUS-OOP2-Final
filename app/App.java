@@ -1,3 +1,4 @@
+package app;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +21,7 @@ import cards.*;
 import constants.Constants;
 import constants.Constants.CardUsageType;
 import player.Player;
+import ui.GameUI;
 
 public class App {
     static Player player = new Player();
@@ -76,17 +78,6 @@ public class App {
                     else if (data[0].contains("monster")) return "monster";
                     else return "null"; 
                 }, Collectors.mapping(data -> Arrays.copyOfRange(data, 1, data.length), Collectors.toList())));
-
-            // TODO: Remove sample print 
-            inputCards.forEach((category, values) -> {
-                // if (category == "monster") {
-                //     System.out.println("Monster Cards:");
-                //     values.forEach(value -> System.out.println(Arrays.toString(value)));
-                // }
-                // System.out.println(category + " Cards:");
-                // values.forEach(value -> System.out.println(Arrays.toString(value))); 
-            });
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -175,7 +166,7 @@ public class App {
                         int isBig = Integer.parseInt(data[1].trim());
                         String requiredClass = data[2].trim();
                         String name = data[3].trim();
-                        String description = "Add +" + value + " lvl in combat for " + requiredClass;
+                        String description = "Add +" + value + " lvl in combat for " + requiredClass + ", " + (isBig == 1 ? "big" : "small");
 
                         return new ArmourCard(name, value, isBig, requiredClass, description);
                     })
@@ -237,48 +228,25 @@ public class App {
                     } else if (drawnCard instanceof CurseCard curse) {
                         System.out.println(curse.name());
                     } else {
-                        
+                        player.addCardToHand(drawnCard);
                     }
                 }
                 default -> {
                     Card selectedCard = parseCardFromOptionString("Play ", selectedOption);
-                    if (selectedCard instanceof ArmourCard armourCard){
-                        armourCard.play(player);
-                    }
-                    System.out.println(selectedCard.name());
-                    // TODO: Do the action for this card
+                    selectedCard.play(player);
                 }
             }
 
-
-            // Step 2: Recieve user input
-            // String userInput = getPlayerChoice(); // TODO: Lambda?
-
-            // // Step 3: If decison is not to play monster from hand or draw door card, excute action of card chosen
-            // if (!userInput.equals("draw door card") && !userInput.equals("play monster from hand")) {
-            //     executeCardAction(userInput); // TODO
-            // } else {
-            //     turnCount++;
-            //     Card drawnCard = drawDoorCard(); // TODO: Lambda?
-
-            //     if (drawnCard instanceof MonsterCard monsterCard) {
-            //         triggerCombat(monsterCard);
-            //     } else if (drawnCard instanceof CurseCard curseCard) {
-            //         applyCurse(curseCard); // TODO: Lambda?
-            //     } else {
-            //         player.addCardToHand(drawnCard);
-            //         drawTreasureCard(); // TODO: Lambda?
-            //     }
-            // }
-
-            // // Step 4: Exit loop if tokens is >= 10 or <= 0
-            // if (player.getTokens() >= 10) {
-            //     // TODO: WIN EVENT
-            //     break;
-            // } else if (player.getTokens() <= 0) {
-            //     // TODO: LOSE EVENT
-            //     break;
-            // }
+            // Step 4: Exit loop if tokens is >= 10 or <= 0
+            if (player.getTokens() >= 10) {
+                System.out.println("WIN EVENT");
+                // TODO: WIN EVENT
+                break;
+            } else if (player.getTokens() <= 0) {
+                System.out.println("LOSE EVENT");
+                // TODO: LOSE EVENT
+                break;
+            }
         }
     }
 
@@ -292,8 +260,9 @@ public class App {
     };
 
     private static void triggerCombat(MonsterCard monster) {
+
         while (true) {
-            String selectedOption = calculateTurnOptionsStart();
+            String selectedOption = calculateTurnOptionsCombat(monster);
 
             switch (selectedOption) {
                 case "Fight Monster" -> {
@@ -306,9 +275,8 @@ public class App {
                     }
                 case "Run Away" -> triggerRunAway(monster);
                 default -> {
-                    // Parse the combat power card from the option selected
-
-                    // equipCombatPower(selectedOption);
+                    Card selectedCard = parseCardFromOptionString("Play ", selectedOption);
+                    selectedCard.play(player);
                 }
             }
         }
@@ -316,6 +284,8 @@ public class App {
 
     private static void triggerRunAway(MonsterCard monster) {
         player.clearCombatPowerCards();
+
+        System.out.println("Rolling dice to run away...");
         // TODO: Need to put them into their respective piles
         int diceRoll = new Random().nextInt(6) + 1;
 
@@ -364,7 +334,16 @@ public class App {
      
         for (Card card : player.getHand()) {
             if (card.type() == CardUsageType.START_OF_TURN) {
-                optionsStart.add("Play " + card.name());
+                // Armour can only be played for the right character class
+                if (card instanceof ArmourCard armourCard) {
+                    System.out.println(player.getCharacterClass());
+                    System.out.println(armourCard.requiredClass());
+                    if (player.getCharacterClass() != null && !player.getCharacterClass().equals(armourCard.requiredClass())) {
+                        optionsStart.add("Play " + card.name());
+                    }
+                } else {
+                    optionsStart.add("Play " + card.name());
+                }
             }
         }
 
@@ -396,6 +375,7 @@ public class App {
 
         optionsCombat.add("Fight Monster");
         optionsCombat.add("Run Away");
+
      
         // Display options
         GameUI.printCombatOptions(player, monster, optionsCombat);

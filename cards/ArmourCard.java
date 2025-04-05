@@ -2,6 +2,7 @@ package cards;
 
 import java.util.function.Consumer;
 
+import app.App;
 import constants.Constants.CardUsageType;
 import player.Player;
 
@@ -20,8 +21,17 @@ public final class ArmourCard implements TreasureCard {
         this.description = description != null ? description : "No description available.";
         this.requiredClass = requiredClass != null ? requiredClass : "None";
         this.action = player -> {
+
+            // SPEC: 2 Streams
+            if (this.isBig == 1 && player.getArmour().stream().anyMatch(armour -> armour.isBig == 1)) {
+                // Remove the big armour from the player's hand
+                player.getArmour().removeIf(armour -> armour.isBig == 1);
+            }
+
             player.addArmour(this);
             player.removeCardFromHand(this);
+
+            // Removed card goes to the appropriate discard pile
         };
     }
 

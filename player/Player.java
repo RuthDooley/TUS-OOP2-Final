@@ -17,7 +17,7 @@ public class Player {
     private final List<CombatPowerCard> combatPowerCards;
 
     public Player() {
-        this.gender = "male";
+        this.gender = null;
         this.characterClass = null;
         this.tokens = Constants.STARTING_TOKENS; 
         this.hand = new ArrayList<>();

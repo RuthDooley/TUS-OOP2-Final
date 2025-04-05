@@ -1,3 +1,4 @@
+package ui;
 import java.util.ArrayList;
 import cards.Card;
 import player.Player;
@@ -13,9 +14,14 @@ public class GameUI {
     // UI 1
     public static void printTurnOptions(Player player, ArrayList<String> options) {
         System.out.println("--------------------------------------------------------------------------------");
+        printOptionsFragment(player, options);
+    }
+
+    // UI 1.5
+    public static void printOptionsFragment(Player player, ArrayList<String> options){
         player.printTokens();
         System.out.println("Gender: " + player.getGender());
-        System.out.println("Class: " + player.getClass());
+        System.out.println("Class: " + player.getCharacterClass());
         System.out.println("");
 
         player.printArmour();
@@ -34,10 +40,11 @@ public class GameUI {
 
     // UI 3
     public static void printCombatOptions(Player player, Card monsterCard, ArrayList<String> options) {
-        System.out.println("Choose an action:");
+        System.out.println("----------------------------------- Combat: -----------------------------------");
         System.out.println(monsterCard.printCard()); 
-        player.printHand();
-        player.printMoveOptions(options);
+        System.out.println("");
+
+        printOptionsFragment(player, options);
     }
 
     // UI 4
