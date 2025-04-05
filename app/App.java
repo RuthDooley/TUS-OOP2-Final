@@ -1,5 +1,6 @@
 package app;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +17,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import java.util.Iterator; 
 
 import cards.*;
 import constants.Constants;
@@ -37,24 +40,26 @@ public class App {
     static List<TreasureCard> treasureDiscardPile = new ArrayList<>();
 
     private static final Supplier<Card> drawDoorCard = () -> {
-        // if (doorCardsDeck.isEmpty()) {
-        //     TODO: Event for no cards
-        // }
+        if (doorCardsDeck.isEmpty()) {
+            // Shuffle door discard pile and make it the new deck
+            doorCardsDeck.addAll(doorDiscardPile);
+            doorDiscardPile.clear();
+            shuffleDeck.accept(doorCardsDeck);
+        }
 
         DoorCard drawnCard = doorCardsDeck.remove(0);
-        doorDiscardPile.add(drawnCard);
-
         return drawnCard;
     };
 
     private static final Supplier<Card> drawTreasureCard = () -> {
-        // if (doorCardsDeck.isEmpty()) {
-        //     TODO: Event for no cards
-        // }
+        if (treasureCardsDeck.isEmpty()) {
+            // Shuffle treasure discard pile and make it the new deck
+            treasureCardsDeck.addAll(treasureDiscardPile);
+            treasureDiscardPile.clear();
+            shuffleDeck.accept(treasureCardsDeck);
+        }
 
         TreasureCard drawnCard = treasureCardsDeck.remove(0);
-        treasureDiscardPile.add(drawnCard);
-
         return drawnCard;
     };
 
@@ -199,26 +204,36 @@ public class App {
 
         // Draw 2 door cards, and 3 treasure cards
         for (int i = 0; i < Constants.DOOR_CARD_START_COUNT; i++) 
-            player.addCardToHand(drawCard.apply(doorCardsDeck));
+            player.addCardToHand(drawCard.apply(doorCardsDeck)); // TODO, change to draw door card
 
         for (int i = 0; i < Constants.TREASURE_CARD_START_COUNT; i++) 
-            player.addCardToHand(drawCard.apply(treasureCardsDeck));
+            player.addCardToHand(drawCard.apply(treasureCardsDeck)); // TODO, change to draw treasure card
 
-        // Draw a door card, return the card drawn and add to the appropriate discard pile
+        // ** GAME LOOP
 
+        // Removing white iterating: Curse cards just removed from hand to begin, and added to discard pile
+        List<Card> modifiableHand = new ArrayList<>(player.getHand()); 
+        Iterator<Card> iterator = modifiableHand.iterator();
+        while (iterator.hasNext()) {
+            Card card = iterator.next();
+            if (card instanceof CurseCard) {
+                iterator.remove(); 
+                doorDiscardPile.add((DoorCard) card); 
+            }
+        }
+        player.setHand(modifiableHand);
 
-        // Game loop
-        // TODO: Curse cards in hand must be used immediately
-        // TODO: Ask the user for their gender
-        int turnCount = 0;
-        int turnCycle = 0;
+        int turnCount = 1;
         while (true) {
+            System.out.println("--------------------------------------------------------------------------------");
+            System.out.println("Turn " + turnCount);
 
             // Get the options for turn and print
             String selectedOption = calculateTurnOptionsStart();
             
             switch (selectedOption) {
                 case "Draw a Door Card" -> {
+                    turnCount++;
                     DoorCard drawnCard = (DoorCard) drawDoorCard.get();
                     GameUI.printDrawnCard(drawnCard);
             
@@ -226,24 +241,49 @@ public class App {
                     if (drawnCard instanceof MonsterCard monster) {
                         triggerCombat(monster);
                     } else if (drawnCard instanceof CurseCard curse) {
-                        System.out.println(curse.name());
+                        curse.play(player);
                     } else {
                         player.addCardToHand(drawnCard);
                     }
                 }
                 default -> {
                     Card selectedCard = parseCardFromOptionString("Play ", selectedOption);
-                    selectedCard.play(player);
+
+                    // Discard card appropriately
+                    switch (selectedCard) {
+                        case DoorCard doorCard -> doorDiscardPile.add(doorCard);
+                        case TreasureCard treasureCard -> treasureDiscardPile.add(treasureCard);
+                        default -> System.out.println("Error handelling, unknown card type");
+                    }
+
+                    if (selectedCard instanceof MonsterCard monster){
+                        triggerCombat(monster);
+                        break;
+                    } else if (selectedCard instanceof ChangeClassCard changeClassCard) {
+                        // If the change class card is not of the same class
+                        if (changeClassCard.name() != player.getCharacterClass()) {
+                            // Need to get rid of all of the armour
+                            for (ArmourCard armourCard : player.getArmour()) {
+                                if (armourCard.requiredClass() == player.getCharacterClass()) {
+                                    player.removeArmour(armourCard);
+                                    treasureCardsDeck.add(armourCard);
+                                }
+                            }
+                        } 
+                        selectedCard.play(player);
+                    } else {
+                        selectedCard.play(player);
+                    }
                 }
             }
 
             // Step 4: Exit loop if tokens is >= 10 or <= 0
             if (player.getTokens() >= 10) {
-                System.out.println("WIN EVENT");
-                // TODO: WIN EVENT
+                System.out.println("You won!");
+                // TODO: Quit program
                 break;
             } else if (player.getTokens() <= 0) {
-                System.out.println("LOSE EVENT");
+                System.out.println("You lost!");
                 // TODO: LOSE EVENT
                 break;
             }
@@ -260,38 +300,82 @@ public class App {
     };
 
     private static void triggerCombat(MonsterCard monster) {
+        if (monster.typeImmune() == player.getGender()) {
+            System.out.println(player.getGender() + "'s get +5 combat power against " + monster.name());
+        }
 
         while (true) {
             String selectedOption = calculateTurnOptionsCombat(monster);
 
             switch (selectedOption) {
                 case "Fight Monster" -> {
-                    if (player.getTokens() + player.getArmourValue() + player.getCombatPower() > monster.getLevel()) {
+                    // Specific classes get a boost for monster type
+                    if (player.getTokens() + player.getArmourValue() + player.getCombatPower() + 
+                    (monster.typeImmune() == player.getGender() ? 5 : 0) 
+                    > monster.level()) {
                             player.addToken();
+
+                            for (Card card : player.getCombatPowerCards()) {
+                                if (card instanceof CombatPowerCard) {
+                                    // Discard combat power cards
+                                    treasureCardsDeck.add((TreasureCard)card);
+                                }
+                            }
                             player.clearCombatPowerCards();
-                            // TODO: Need to put them into their respective piles
+                            doorDiscardPile.add(monster);
+
+                            // Pick up treasure card reward
+                            ArrayList<TreasureCard> treasureCards = new ArrayList<>();
+                            for (int i = 0; i < monster.treasureDrop(); i++) {
+                                TreasureCard treasureCard = (TreasureCard) drawTreasureCard.get();
+                                player.addCardToHand(treasureCard);
+                            }
+
+                            GameUI.printCombatSucess(player, treasureCards);
+                            break;
+                        } else {
+                           // Run away triggered otherwise
+                            triggerRunAway(monster);
                             break;
                         }
+
                     }
-                case "Run Away" -> triggerRunAway(monster);
+                case "Run Away" -> {
+                    triggerRunAway(monster);
+                    break;
+                }
                 default -> {
                     Card selectedCard = parseCardFromOptionString("Play ", selectedOption);
                     selectedCard.play(player);
+
+                    // Discard card appropriately
+                    switch (selectedCard) {
+                        case DoorCard doorCard -> doorDiscardPile.add(doorCard);
+                        case TreasureCard treasureCard -> treasureDiscardPile.add(treasureCard);
+                        default -> System.out.println("Error handelling, unknown card type");
+                    }
                 }
             }
         }
     }
 
     private static void triggerRunAway(MonsterCard monster) {
+        for (Card card : player.getCombatPowerCards()) {
+            if (card instanceof CombatPowerCard) {
+                // Discard combat power cards
+                treasureCardsDeck.add((TreasureCard)card);
+            }
+        }
         player.clearCombatPowerCards();
 
         System.out.println("Rolling dice to run away...");
-        // TODO: Need to put them into their respective piles
         int diceRoll = new Random().nextInt(6) + 1;
 
         if (diceRoll < 5) {
             player.removeToken();
         }
+
+        GameUI.printRunAwayResult(diceRoll, player);
     }
 
     public static int getUserInput(ArrayList<String> options) {
@@ -336,9 +420,7 @@ public class App {
             if (card.type() == CardUsageType.START_OF_TURN) {
                 // Armour can only be played for the right character class
                 if (card instanceof ArmourCard armourCard) {
-                    System.out.println(player.getCharacterClass());
-                    System.out.println(armourCard.requiredClass());
-                    if (player.getCharacterClass() != null && !player.getCharacterClass().equals(armourCard.requiredClass())) {
+                    if (player.getCharacterClass() != null && player.getCharacterClass().equals(armourCard.requiredClass())) {
                         optionsStart.add("Play " + card.name());
                     }
                 } else {
@@ -360,7 +442,7 @@ public class App {
     public static String calculateTurnOptionsCombat(MonsterCard monster) {
         /**
          * The options on combat are:
-         * 1. Play combat power cards from hand
+         * 1. Play combat power cards from hand, if combat allows it 
          * 2. Fight monster
          * 3. Run away
          */
@@ -369,14 +451,18 @@ public class App {
      
         for (Card card : player.getHand()) {
             if (card.type() == CardUsageType.COMBAT) {
-                optionsCombat.add("Play " + card.name());
+                // Combat power cards can only be played for the right monster level
+                if (card instanceof CombatPowerCard combatPowerCard) {
+                    if (monster.level() >= combatPowerCard.monsterLvl()) {
+                        optionsCombat.add("Play " + card.name());
+                    }
+                } 
             }
         }
 
         optionsCombat.add("Fight Monster");
         optionsCombat.add("Run Away");
 
-     
         // Display options
         GameUI.printCombatOptions(player, monster, optionsCombat);
      

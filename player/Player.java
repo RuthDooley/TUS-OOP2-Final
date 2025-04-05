@@ -71,6 +71,13 @@ public class Player {
         }
     }
 
+    public void setHand(List<Card> hand) {
+        this.hand.clear();
+        if (hand != null) {
+            this.hand.addAll(hand);
+        }
+    }
+
     public void removeCardFromHand(Card card) {
         hand.remove(card);
     }

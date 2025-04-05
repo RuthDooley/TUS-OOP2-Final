@@ -30,8 +30,6 @@ public final class ArmourCard implements TreasureCard {
 
             player.addArmour(this);
             player.removeCardFromHand(this);
-
-            // Removed card goes to the appropriate discard pile
         };
     }
 

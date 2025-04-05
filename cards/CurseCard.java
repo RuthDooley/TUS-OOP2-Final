@@ -12,7 +12,7 @@ public record CurseCard(String name, String description, Runnable effect) implem
 
     @Override
     public void play(Player player) {
-        System.out.println("Curse activated: " + name); // TODO: Is this needed?
+        System.out.println("Curse activated: " + name);
         effect.run();
     }
 }

@@ -1,6 +1,7 @@
 package ui;
 import java.util.ArrayList;
 import cards.Card;
+import cards.TreasureCard;
 import player.Player;
 
 public class GameUI {
@@ -54,7 +55,7 @@ public class GameUI {
 
     // SPEC: 2a intermediate operations, .forEach()
     // UI 5
-    public static void printCombatSucess(Player player, ArrayList<Card> treasureCards) {
+    public static void printCombatSucess(Player player, ArrayList<TreasureCard> treasureCards) {
         System.out.println("You defeated the monster!");
         player.printTokens();
         if (!treasureCards.isEmpty()) {

@@ -16,7 +16,8 @@ public record ChangeClassCard(String name) implements DoorCard {
 
     @Override
     public void play(Player player) {
-        player.setCharacterClass(name);
         player.removeCardFromHand(this);
+        player.setCharacterClass(name);
+    
     }
 }

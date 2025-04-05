@@ -53,18 +53,18 @@ armour, 2, 0, cleric, chasuble
 armour, 3, 0, wizard, mysticgarb
 armour, 1, 0, warrier, mailboots
 armour, 2, 1, cleric, tabard
-combat, 15, smite
-combat, 16, fireball
-combat, 17, shadowstrike
-combat, 15, whirlwind
-combat, 16, thunderclap
-combat, 17, deathcurse
-combat, 15, bladefury
-combat, 16, frostbolt
-combat, 17, soulreap
-combat, 15, divineblast
-combat, 16, earthquake
-combat, 17, mindcontrol
+combat, 10, smite
+combat, 10, fireball
+combat, 11, shadowstrike
+combat, 12, whirlwind
+combat, 10, thunderclap
+combat, 11, deathcurse
+combat, 13, bladefury
+combat, 11, frostbolt
+combat, 12, soulreap
+combat, 14, divineblast
+combat, 12, earthquake
+combat, 12, mindcontrol
 combat, 15, warcry
 combat, 13, poisonfang
 combat, 14, bloodletting
