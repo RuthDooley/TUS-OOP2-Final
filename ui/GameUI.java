@@ -63,4 +63,19 @@ public class GameUI {
             treasureCards.forEach(card -> System.out.println(card.printCard()));
         }
     }
+
+    // UI 6
+    public static void printCreateOrLoadGame(String time) {
+        System.out.println("--------------------------------------------------------------------------------");
+        System.out.println("Welcome to Munchkin!");
+
+        if (time != null) {
+            System.out.println("Choose an option: ");
+            System.out.println("1. [ Create new game ]");
+            System.out.println("2. [ Load game : " + time + " ]");
+            return;
+        } 
+
+        System.out.println(" Creating a new game ...");
+    }
 }

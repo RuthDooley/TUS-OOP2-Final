@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +26,11 @@ import cards.*;
 import constants.Constants;
 import constants.Constants.CardUsageType;
 import player.Player;
+import savegame.GameState;
+import savegame.SaveManager;
 import ui.GameUI;
+
+// TODO: Sort these imports
 
 public class App {
     static Player player = new Player();
@@ -38,6 +44,8 @@ public class App {
 
     static List<DoorCard> doorDiscardPile = new ArrayList<>();
     static List<TreasureCard> treasureDiscardPile = new ArrayList<>();
+
+    static int turnCount = 1;
 
     private static final Supplier<Card> drawDoorCard = () -> {
         if (doorCardsDeck.isEmpty()) {
@@ -65,6 +73,28 @@ public class App {
 
     public static void main(String[] args) {
         Path path = Paths.get("card-desc.txt");
+
+        // ** Create or load game
+        int choice = 0;
+        GameState loadedState = SaveManager.loadGame();
+        if (loadedState != null) {
+            GameUI.printCreateOrLoadGame("TODO time"); // TODO: Add date and time
+            choice = getUserInput(2) - 1;
+        }
+
+        switch (choice) {
+            case 0 -> {
+                System.out.println("Creating new game...");
+            }
+            case 1 -> {
+                System.out.println("Loading game..."); // TODO: Add date and time
+ 
+                if (loadedState != null) {
+                    // Load state
+                    System.out.println("Game loaded successfully!");
+                }
+            }
+        }
 
         // Cards from card-desc.txt, in a map of values monster, armour and combat
         Map<String, List<String[]>> inputCards = new HashMap<>();
@@ -223,14 +253,12 @@ public class App {
         }
         player.setHand(modifiableHand);
 
-        int turnCount = 1;
         while (true) {
             System.out.println("--------------------------------------------------------------------------------");
             System.out.println("Turn " + turnCount);
 
             // Get the options for turn and print
             String selectedOption = calculateTurnOptionsStart();
-            
             switch (selectedOption) {
                 case "Draw a Door Card" -> {
                     turnCount++;
@@ -245,6 +273,18 @@ public class App {
                     } else {
                         player.addCardToHand(drawnCard);
                     }
+                }
+                case "Save & Exit" -> {
+                    // SPEC 5: Date/Time API
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy HH:mm:ss"); 
+                    String formattedDateTime = now.format(formatter); // TODO: Change to this maybe?
+
+                    System.out.println("Saving game...");
+                    SaveManager.saveGame(new GameState(player.getGender(), player.getCharacterClass(), player.getTokens(), listOfCardNameStringsFromCardArrayList(player.getHand()),
+                    listOfCardNameStringsFromCardArrayList(player.getArmour()), listOfCardNameStringsFromCardArrayList(player.getCombatPowerCards()), listOfCardNameStringsFromCardArrayList(treasureCardsDeck), 
+                    listOfCardNameStringsFromCardArrayList(doorCardsDeck), listOfCardNameStringsFromCardArrayList(treasureDiscardPile), listOfCardNameStringsFromCardArrayList(doorDiscardPile), turnCount, now));
+                    System.exit(0);
                 }
                 default -> {
                     Card selectedCard = parseCardFromOptionString("Play ", selectedOption);
@@ -280,11 +320,11 @@ public class App {
             // Step 4: Exit loop if tokens is >= 10 or <= 0
             if (player.getTokens() >= 10) {
                 System.out.println("You won!");
-                // TODO: Quit program
+                System.exit(0);
                 break;
             } else if (player.getTokens() <= 0) {
                 System.out.println("You lost!");
-                // TODO: LOSE EVENT
+                System.exit(0);
                 break;
             }
         }
@@ -378,7 +418,7 @@ public class App {
         GameUI.printRunAwayResult(diceRoll, player);
     }
 
-    public static int getUserInput(ArrayList<String> options) {
+    public static int getUserInput(int optionsSize) {
         int choice = -1;
 
         while (true) {
@@ -386,10 +426,10 @@ public class App {
                 String input = scanner.nextLine();
                 choice = Integer.parseInt(input);
 
-                if (choice >= 1 && choice <= options.size()) {
+                if (choice >= 1 && choice <= optionsSize) {
                     return choice;
                 } else {
-                    System.out.println("Please enter a number between 1 and " + options.size());
+                    System.out.println("Please enter a number between 1 and " + optionsSize);
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid number!");
@@ -435,7 +475,7 @@ public class App {
         GameUI.printTurnOptions(player, optionsStart);
      
         // TODO: Continue to ask for choice if not a valid choice
-        int choice = getUserInput(optionsStart);
+        int choice = getUserInput(optionsStart.size());
         return optionsStart.get(choice - 1); 
     }
 
@@ -467,7 +507,7 @@ public class App {
         GameUI.printCombatOptions(player, monster, optionsCombat);
      
         // TODO: Continue to ask for choice if not a valid choice
-        int choice = getUserInput(optionsCombat);
+        int choice = getUserInput(optionsCombat.size());
         return optionsCombat.get(choice - 1); 
     }
 
@@ -482,6 +522,16 @@ public class App {
             }
         }
         return null;
+    }
+
+    // Form an array list of card, return a string of the card names only. This is for parsing for the game state
+    // TODO: Maybe put this somewhere else?
+    public static List<String> listOfCardNameStringsFromCardArrayList(List<? extends Card> cards) {
+        List<String> cardNames = new ArrayList<>();
+        for (Card card : cards) {
+            cardNames.add(card.name());
+        }
+        return cardNames;
     }
 }
 
