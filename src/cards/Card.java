@@ -13,4 +13,3 @@ public sealed interface Card permits DoorCard, TreasureCard {
         return "Card: " + name() + " | " + description() + " | " + this.getClass().getSimpleName();
     }
 }
-

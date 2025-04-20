@@ -10,8 +10,8 @@ import cards.TreasureCard;
 import player.Player;
 
 public class GameUI {
-    public static Locale locale = Locale.of("fr", "FR");
-    // public static Locale locale = Locale.of("en", "GB");
+    // public static Locale locale = Locale.of("fr", "FR");
+    public static Locale locale = Locale.of("en", "GB");
     public static final ResourceBundle MESSAGES = ResourceBundle.getBundle("resources.MessagesBundle", locale);
     
     // UI 1

@@ -10,10 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.Iterator; 
@@ -48,8 +46,6 @@ public class App {
 
         // SPEC: 2 Streams
         try (Stream<String> lines = Files.lines(path)) {
-            System.out.println(lines);
-
             // SPEC: 2a intermediate operations, .map(), .filter()
             // SPEC: 2b Collectors.groupingBy, Collectors.mapping, .collect()
             inputCards = lines
@@ -84,7 +80,7 @@ public class App {
             .collect(Collectors.toList());
 
         // * Change class cards
-        List<ChangeClassCard> changeClassCards = new ArrayList<>();
+        List<ChangeClassCard> changeClassCards ,= new ArrayList<>();
         for (int i = 0; i < Constants.CHANGE_CLASS_CARD_COUNT; i++) {
             String[] classes = {"warrior", "wizard", "cleric"};
             String randomClass = classes[(int) (Math.random() * classes.length)];

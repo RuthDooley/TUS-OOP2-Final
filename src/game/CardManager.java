@@ -32,6 +32,8 @@ public class CardManager {
         for (Card card : player.getHand()) {
             if (card.type() == CardUsageType.START_OF_TURN) {
                 // Armour can only be played for the right character class
+
+                // SPEC 2: Pattern matching
                 if (card instanceof ArmourCard armourCard) {
                     if (player.getCharacterClass() != null && player.getCharacterClass().equals(armourCard.requiredClass())) {
                         optionsStart.add("Play " + card.name());

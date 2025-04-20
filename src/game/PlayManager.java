@@ -38,7 +38,6 @@ public class PlayManager {
     public static void triggerCombat(MonsterCard monster, Player player) {
         if (monster.typeImmune() == player.getGender()) {
             System.out.println(player.getGender() + "'s get +5 combat power against " + monster.name());
-            player.addCombatPowerCardToHand(new CombatPowerCard("Gender Boost", 0, 5, "Gender specific +5 combat"));
         }
 
         // Discard the monster card
@@ -50,7 +49,7 @@ public class PlayManager {
             case "Fight Monster" -> {
                 // Specific classes get a boost for monster type
                 if (player.getTokens() + player.getArmourValue() + player.getCombatPower() + 
-                (monster.typeImmune() == player.getGender() ? 5 : 0) 
+                (monster.typeImmune() == player.getGender() ? 5 : 0) // Actually handle the gender + 5
                 > monster.level()) {
                         player.addToken();
 
