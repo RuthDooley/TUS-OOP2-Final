@@ -1,8 +1,6 @@
 package cards;
 
 import java.util.function.Consumer;
-
-import app.App;
 import constants.Constants.CardUsageType;
 import player.Player;
 

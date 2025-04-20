@@ -76,6 +76,8 @@ public class App {
     public static void main(String[] args) {
         Path path = Paths.get("card-desc.txt");
 
+        player = new Player();
+
         // ** Create or load game
         int choice = 0;
         GameState loadedState = SaveManager.loadGame();
@@ -217,8 +219,6 @@ public class App {
                 shuffleDeck.accept(doorCardsDeck);
                 shuffleDeck.accept(treasureCardsDeck);
 
-                player = new Player();
-
                 // Draw 2 door cards, and 3 treasure cards
                 for (int i = 0; i < Constants.DOOR_CARD_START_COUNT; i++) 
                     player.addCardToHand(drawCard.apply(doorCardsDeck)); // TODO, change to draw door card
@@ -263,8 +263,6 @@ public class App {
                     extractCardsByName(allCardsDeck, loadedState.getPlayerHand()), extractCardsByName(allCardsDeck, loadedState.getPlayerArmour()),
                     extractCardsByName(allCardsDeck, loadedState.getPlayerCombatPowerCards()));
                 
-                
-
                 System.out.println("Game loaded successfully!");
             }
         }
