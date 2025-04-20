@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.Iterator; 
@@ -28,6 +30,7 @@ public class App {
     static int turnCount = 1;
 
     public static void main(String[] args) {
+
         Path path = Paths.get("card-desc.txt");
 
         player = new Player();
@@ -45,6 +48,7 @@ public class App {
 
         // SPEC: 2 Streams
         try (Stream<String> lines = Files.lines(path)) {
+            System.out.println(lines);
 
             // SPEC: 2a intermediate operations, .map(), .filter()
             // SPEC: 2b Collectors.groupingBy, Collectors.mapping, .collect()
