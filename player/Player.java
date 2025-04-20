@@ -16,13 +16,32 @@ public class Player {
     private final List<ArmourCard> armour;
     private final List<CombatPowerCard> combatPowerCards;
 
+    // Default constructor
     public Player() {
-        this.gender = null;
-        this.characterClass = null;
-        this.tokens = Constants.STARTING_TOKENS; 
-        this.hand = new ArrayList<>();
-        this.armour = new ArrayList<>();
-        this.combatPowerCards = new ArrayList<>();
+        this(null, null, Constants.STARTING_TOKENS, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
+    // Constructor for save state
+    public Player(String gender, String characterClass, int tokens, List<Card> hand, List<Card> armour, List<Card> combatPowerCards) {
+        this.gender = gender;
+        this.characterClass = characterClass;
+        this.tokens = tokens;
+    
+        this.hand = hand != null ? hand : new ArrayList<>();
+    
+        this.armour = armour != null
+            ? armour.stream()
+                    .filter(card -> card instanceof ArmourCard)
+                    .map(card -> (ArmourCard) card)
+                    .toList()
+            : new ArrayList<>();
+    
+        this.combatPowerCards = combatPowerCards != null
+            ? combatPowerCards.stream()
+                              .filter(card -> card instanceof CombatPowerCard)
+                              .map(card -> (CombatPowerCard) card)
+                              .toList()
+            : new ArrayList<>();
     }
 
     public String getGender() {

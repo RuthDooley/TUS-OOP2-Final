@@ -15,6 +15,7 @@ public class SaveManager {
             System.out.println("Game saved successfully!");
         } catch (Exception e) {
             System.err.println("Failed to save game: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -26,10 +27,12 @@ public class SaveManager {
 
         try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(SAVE_FILE))) {
             GameState gameState = (GameState) ois.readObject();
-            System.out.println("Game loaded successfully! Last saved at: " + gameState.getSaveTime().format(DateTimeFormatter.ofPattern("dd MM yyyy HH:mm:ss")));
+            System.out.println("Game loaded successfully! Last saved at: " +
+                gameState.getSaveTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
             return gameState;
         } catch (Exception e) {
             System.err.println("Failed to load game: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

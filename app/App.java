@@ -1,6 +1,5 @@
 package app;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,8 +31,11 @@ import ui.GameUI;
 
 // TODO: Sort these imports
 
+
+// TODO: Should probably think about putting all of the functions in a util file or somehting?
+
 public class App {
-    static Player player = new Player();
+    static Player player;
 
     // SPEC: 1 Consumer lambda (Moved outside the method)
     private static final Consumer<List<?>> shuffleDeck = Collections::shuffle;
@@ -78,22 +80,8 @@ public class App {
         int choice = 0;
         GameState loadedState = SaveManager.loadGame();
         if (loadedState != null) {
-            GameUI.printCreateOrLoadGame("TODO time"); // TODO: Add date and time
+            GameUI.printCreateOrLoadGame(loadedState.getSaveTime()); // TODO: Add date and time
             choice = getUserInput(2) - 1;
-        }
-
-        switch (choice) {
-            case 0 -> {
-                System.out.println("Creating new game...");
-            }
-            case 1 -> {
-                System.out.println("Loading game..."); // TODO: Add date and time
- 
-                if (loadedState != null) {
-                    // Load state
-                    System.out.println("Game loaded successfully!");
-                }
-            }
         }
 
         // Cards from card-desc.txt, in a map of values monster, armour and combat
@@ -117,26 +105,23 @@ public class App {
             e.printStackTrace();
         }
 
-        // All info including remaining card types, "cardified"
-
         // ** DOOR CARDS
 
         // * Monster cards
         // SPEC: 2b Collectors.toList()
-        List<MonsterCard> monsterCards = new ArrayList<>();
-        monsterCards = inputCards.get("monster").stream()
-                    .map(data -> {
-                        int level = Integer.parseInt(data[0].trim());
-                        String typeImmmune = data[1].trim(); // TODO, instead of immune type add exxtra combat points
-                        int treasureDrop = Integer.parseInt(data[2].trim()); 
-                        String name = data[3].trim();
-                        String description = "Lvl " + level + " monster, " + typeImmmune + " + 1 combat power, defeat yields " + treasureDrop + " treasures";
-                        Runnable action = () -> {
-                            System.out.println("TODO, Sample for now");
-                        };
-                        return new MonsterCard(name, level, typeImmmune, treasureDrop, description, action);
-                    })
-                    .collect(Collectors.toList());
+        List<MonsterCard> monsterCards = inputCards.get("monster").stream()
+            .map(data -> {
+                int level = Integer.parseInt(data[0].trim());
+                String typeImmune = data[1].trim(); // TODO, instead of immune type add extra combat points
+                int treasureDrop = Integer.parseInt(data[2].trim());
+                String name = data[3].trim();
+                String description = "Lvl " + level + " monster, " + typeImmune + " + 1 combat power, defeat yields " + treasureDrop + " treasures";
+                Runnable action = () -> {
+                    System.out.println("TODO, Sample for now");
+                };
+                return new MonsterCard(name, level, typeImmune, treasureDrop, description, action);
+            })
+            .collect(Collectors.toList());
 
         // * Change class cards
         List<ChangeClassCard> changeClassCards = new ArrayList<>();
@@ -159,10 +144,9 @@ public class App {
         // * Curse cards
         List<CurseCard> curseCards = new ArrayList<>();
         String[] curses = {"lose lvl", "lose armour", "lose class"};
-        
         for (int i = 0; i < Constants.CURSE_CARD_COUNT; i++) {
             String randomCurse = curses[(int) (Math.random() * curses.length)];
-        
+
             Runnable action = switch (randomCurse) {
                 case "lose lvl" -> () -> player.removeToken();
                 case "lose armour" -> {
@@ -179,11 +163,11 @@ public class App {
                 case "lose class" -> () -> player.setCharacterClass(null);
                 default -> () -> System.out.println("No valid curse applied");
             };
-        
+
             CurseCard card = new CurseCard(randomCurse, "Instantly " + randomCurse, action);
             curseCards.add(card);
         }
-        
+                        
         // ** TREASURE CARDS
 
         // * Level up cards
@@ -194,65 +178,98 @@ public class App {
         }
 
         // * Armour cards
-        List<ArmourCard> armourCards = new ArrayList<>();
-        armourCards = inputCards.get("armour").stream()
-                    .map(data -> {
-                        int value = Integer.parseInt(data[0].trim());
-                        int isBig = Integer.parseInt(data[1].trim());
-                        String requiredClass = data[2].trim();
-                        String name = data[3].trim();
-                        String description = "Add +" + value + " lvl in combat for " + requiredClass + ", " + (isBig == 1 ? "big" : "small");
+        List<ArmourCard> armourCards = inputCards.get("armour").stream()
+            .map(data -> {
+                int value = Integer.parseInt(data[0].trim());
+                int isBig = Integer.parseInt(data[1].trim());
+                String requiredClass = data[2].trim();
+                String name = data[3].trim();
+                String description = "Add +" + value + " lvl in combat for " + requiredClass + ", " + (isBig == 1 ? "big" : "small");
 
-                        return new ArmourCard(name, value, isBig, requiredClass, description);
-                    })
-                    .collect(Collectors.toList());
+                return new ArmourCard(name, value, isBig, requiredClass, description);
+            })
+            .collect(Collectors.toList());
 
         // * Combat power cards
-        List<CombatPowerCard> combatPowerCards = new ArrayList<>();
-        combatPowerCards = inputCards.get("combat").stream()
-                    .map(data -> {
-                        int monsterLvl = Integer.parseInt(data[0].trim());
-                        String name = data[1].trim();
-                        int bonusPower = new Random().nextInt(3) + 1; // 1 - 3 inclusive
-                        String description = "Add +" + bonusPower + " lvl in combat for monster lvl >=" + monsterLvl;
+        List<CombatPowerCard> combatPowerCards = inputCards.get("combat").stream()
+            .map(data -> {
+                int monsterLvl = Integer.parseInt(data[0].trim());
+                String name = data[1].trim();
+                int bonusPower = new Random().nextInt(3) + 1; // 1 - 3 inclusive
+                String description = "Add +" + bonusPower + " lvl in combat for monster lvl >=" + monsterLvl;
 
-                        return new CombatPowerCard(name, monsterLvl, bonusPower, description);
-                    })
-                    .collect(Collectors.toList());
+                return new CombatPowerCard(name, monsterLvl, bonusPower, description);
+            })
+            .collect(Collectors.toList());
 
-        doorCardsDeck.addAll(monsterCards);
-        doorCardsDeck.addAll(changeClassCards);
-        doorCardsDeck.addAll(changeGenderCards);
-        doorCardsDeck.addAll(curseCards);
+        switch (choice) {
+            case 0 -> {
+                System.out.println("Creating new game...");
 
-        treasureCardsDeck.addAll(levelUpCards);
-        treasureCardsDeck.addAll(armourCards);
-        treasureCardsDeck.addAll(combatPowerCards);
+                doorCardsDeck.addAll(List.of(monsterCards, changeClassCards, changeGenderCards, curseCards).stream()
+                    .flatMap(List::stream)
+                    .toList());
+        
+                treasureCardsDeck.addAll(List.of(levelUpCards, armourCards, combatPowerCards).stream()
+                    .flatMap(List::stream)
+                    .toList());
+        
+                shuffleDeck.accept(doorCardsDeck);
+                shuffleDeck.accept(treasureCardsDeck);
 
-        shuffleDeck.accept(doorCardsDeck);
-        shuffleDeck.accept(treasureCardsDeck);
+                player = new Player();
 
-        // Draw 2 door cards, and 3 treasure cards
-        for (int i = 0; i < Constants.DOOR_CARD_START_COUNT; i++) 
-            player.addCardToHand(drawCard.apply(doorCardsDeck)); // TODO, change to draw door card
+                // Draw 2 door cards, and 3 treasure cards
+                for (int i = 0; i < Constants.DOOR_CARD_START_COUNT; i++) 
+                    player.addCardToHand(drawCard.apply(doorCardsDeck)); // TODO, change to draw door card
 
-        for (int i = 0; i < Constants.TREASURE_CARD_START_COUNT; i++) 
-            player.addCardToHand(drawCard.apply(treasureCardsDeck)); // TODO, change to draw treasure card
+                for (int i = 0; i < Constants.TREASURE_CARD_START_COUNT; i++) 
+                    player.addCardToHand(drawCard.apply(treasureCardsDeck)); // TODO, change to draw treasure card
 
-        // ** GAME LOOP
+                // Removing white iterating: Curse cards just removed from hand to begin, and added to discard pile
+                List<Card> modifiableHand = new ArrayList<>(player.getHand()); 
+                Iterator<Card> iterator = modifiableHand.iterator();
+                while (iterator.hasNext()) {
+                    Card card = iterator.next();
+                    if (card instanceof CurseCard) {
+                        iterator.remove(); 
+                        doorDiscardPile.add((DoorCard) card); 
+                    }
+                }
+                player.setHand(modifiableHand);
 
-        // Removing white iterating: Curse cards just removed from hand to begin, and added to discard pile
-        List<Card> modifiableHand = new ArrayList<>(player.getHand()); 
-        Iterator<Card> iterator = modifiableHand.iterator();
-        while (iterator.hasNext()) {
-            Card card = iterator.next();
-            if (card instanceof CurseCard) {
-                iterator.remove(); 
-                doorDiscardPile.add((DoorCard) card); 
+            }
+            case 1 -> {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                String formattedTime = loadedState.getSaveTime().format(formatter);
+                System.out.println("Loading game " + formattedTime + "...");
+
+                // Get all cards and combine into one array list
+                List<? extends Card> allCardsDeck = List.of(
+                    monsterCards, 
+                    changeClassCards, 
+                    changeGenderCards, 
+                    curseCards, 
+                    levelUpCards,  
+                    armourCards, 
+                    combatPowerCards
+                ).stream()
+                .flatMap(List::stream)
+                .toList();
+
+                // TODO: Some lists of cards need to be reversed
+                
+                player = new Player(loadedState.getPlayerGender(), loadedState.getPlayerClass(), loadedState.getPlayerTokens(), 
+                    extractCardsByName(allCardsDeck, loadedState.getPlayerHand()), extractCardsByName(allCardsDeck, loadedState.getPlayerArmour()),
+                    extractCardsByName(allCardsDeck, loadedState.getPlayerCombatPowerCards()));
+                
+                
+
+                System.out.println("Game loaded successfully!");
             }
         }
-        player.setHand(modifiableHand);
 
+        // ** GAME LOOP
         while (true) {
             System.out.println("--------------------------------------------------------------------------------");
             System.out.println("Turn " + turnCount);
@@ -278,12 +295,16 @@ public class App {
                     // SPEC 5: Date/Time API
                     LocalDateTime now = LocalDateTime.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy HH:mm:ss"); 
-                    String formattedDateTime = now.format(formatter); // TODO: Change to this maybe?
+                    String formattedDateTime = now.format(formatter); // TODO: Change to this maybe?, put this into save file maybe2
 
                     System.out.println("Saving game...");
                     SaveManager.saveGame(new GameState(player.getGender(), player.getCharacterClass(), player.getTokens(), listOfCardNameStringsFromCardArrayList(player.getHand()),
                     listOfCardNameStringsFromCardArrayList(player.getArmour()), listOfCardNameStringsFromCardArrayList(player.getCombatPowerCards()), listOfCardNameStringsFromCardArrayList(treasureCardsDeck), 
                     listOfCardNameStringsFromCardArrayList(doorCardsDeck), listOfCardNameStringsFromCardArrayList(treasureDiscardPile), listOfCardNameStringsFromCardArrayList(doorDiscardPile), turnCount, now));
+                    System.exit(0);
+                }
+                case "Exit" -> {
+                    System.out.println("Exiting game...");
                     System.exit(0);
                 }
                 default -> {
@@ -470,6 +491,7 @@ public class App {
         }
 
         optionsStart.add("Save & Exit");
+        optionsStart.add("Exit");
      
         // Display options
         GameUI.printTurnOptions(player, optionsStart);
@@ -532,6 +554,31 @@ public class App {
             cardNames.add(card.name());
         }
         return cardNames;
+    }
+
+    /**
+     * Given an array list deck of cards, and a array list of strings (represent cards), 
+     * Find the card in the deck add it to a new list, remove it from the original list and repeat for the rest of the strings.
+     * Return the new list 
+     */
+    public static ArrayList<Card> extractCardsByName(List<? extends Card> allCardsDeck, List<String> cardNames) {
+        ArrayList<Card> extractedCards = new ArrayList<>();
+        ArrayList<Card> deckCopy = new ArrayList<>(allCardsDeck);
+    
+        for (String cardName : cardNames) {
+            Card matchingCard = deckCopy.stream()
+                    .filter(card -> card.name().equalsIgnoreCase(cardName))
+                    .findFirst()
+                    .orElse(null);
+    
+            // Remove from the deck, call by reference
+            if (matchingCard != null) {
+                extractedCards.add(matchingCard);
+                deckCopy.remove(matchingCard);
+            }
+        }
+    
+        return extractedCards;
     }
 }
 

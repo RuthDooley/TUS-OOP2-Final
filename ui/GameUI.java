@@ -1,4 +1,6 @@
 package ui;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import cards.Card;
 import cards.TreasureCard;
@@ -65,14 +67,17 @@ public class GameUI {
     }
 
     // UI 6
-    public static void printCreateOrLoadGame(String time) {
+    public static void printCreateOrLoadGame(LocalDateTime time) {
         System.out.println("--------------------------------------------------------------------------------");
         System.out.println("Welcome to Munchkin!");
 
         if (time != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String formattedTime = time.format(formatter);
+
             System.out.println("Choose an option: ");
             System.out.println("1. [ Create new game ]");
-            System.out.println("2. [ Load game : " + time + " ]");
+            System.out.println("2. [ Load game : " + formattedTime + " ]");
             return;
         } 
 
