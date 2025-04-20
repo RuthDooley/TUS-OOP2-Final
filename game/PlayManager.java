@@ -38,61 +38,64 @@ public class PlayManager {
     public static void triggerCombat(MonsterCard monster, Player player) {
         if (monster.typeImmune() == player.getGender()) {
             System.out.println(player.getGender() + "'s get +5 combat power against " + monster.name());
+            player.addCombatPowerCardToHand(new CombatPowerCard("Gender Boost", 0, 5, "Gender specific +5 combat"));
         }
 
-        while (true) {
-            String selectedOption = calculateTurnOptionsCombat(monster, player);
+        // Discard the monster card
+        DeckManager.doorDiscardPile.add(monster); 
 
-            switch (selectedOption) {
-                case "Fight Monster" -> {
-                    // Specific classes get a boost for monster type
-                    if (player.getTokens() + player.getArmourValue() + player.getCombatPower() + 
-                    (monster.typeImmune() == player.getGender() ? 5 : 0) 
-                    > monster.level()) {
-                            player.addToken();
+        String selectedOption = calculateTurnOptionsCombat(monster, player);
 
-                            for (Card card : player.getCombatPowerCards()) {
-                                if (card instanceof CombatPowerCard) {
-                                    // Discard combat power cards
-                                    DeckManager.treasureCardsDeck.add((TreasureCard)card);
-                                }
+        switch (selectedOption) {
+            case "Fight Monster" -> {
+                // Specific classes get a boost for monster type
+                if (player.getTokens() + player.getArmourValue() + player.getCombatPower() + 
+                (monster.typeImmune() == player.getGender() ? 5 : 0) 
+                > monster.level()) {
+                        player.addToken();
+
+                        for (Card card : player.getCombatPowerCards()) {
+                            if (card instanceof CombatPowerCard) {
+                                // Discard combat power cards
+                                DeckManager.treasureCardsDeck.add((TreasureCard)card);
                             }
-                            player.clearCombatPowerCards();
-                            DeckManager.doorDiscardPile.add(monster);
+                        }
+                        player.clearCombatPowerCards();
+                        DeckManager.doorDiscardPile.add(monster);
 
-                            // Pick up treasure card reward
-                            ArrayList<TreasureCard> treasureCards = new ArrayList<>();
-                            for (int i = 0; i < monster.treasureDrop(); i++) {
-                                TreasureCard treasureCard = (TreasureCard) DeckManager.drawTreasureCard.get();
-                                player.addCardToHand(treasureCard);
-                            }
-
-                            GameUI.printCombatSucess(player, treasureCards);
-                            break;
-                        } else {
-                           // Run away triggered otherwise
-                           PlayManager.triggerRunAway(monster, player);
-                            break;
+                        // Pick up treasure card reward
+                        ArrayList<TreasureCard> treasureCards = new ArrayList<>();
+                        for (int i = 0; i < monster.treasureDrop(); i++) {
+                            TreasureCard treasureCard = (TreasureCard) DeckManager.drawTreasureCard.get();
+                            player.addCardToHand(treasureCard);
                         }
 
+                        GameUI.printCombatSucess(player, treasureCards);
+                        break;
+                    } else {
+                        // Run away triggered otherwise
+                        PlayManager.triggerRunAway(monster, player);
+                        break;
                     }
-                case "Run Away" -> {
-                    PlayManager.triggerRunAway(monster, player);
-                    break;
-                }
-                default -> {
-                    Card selectedCard = parseCardFromOptionString("Play ", selectedOption, player);
-                    selectedCard.play(player);
 
-                    // Discard card appropriately
-                    switch (selectedCard) {
-                        case DoorCard doorCard -> DeckManager.doorDiscardPile.add(doorCard);
-                        case TreasureCard treasureCard -> DeckManager.treasureDiscardPile.add(treasureCard);
-                        default -> System.out.println("Error handelling, unknown card type");
-                    }
+                }
+            case "Run Away" -> {
+                PlayManager.triggerRunAway(monster, player);
+                break;
+            }
+            default -> {
+                Card selectedCard = parseCardFromOptionString("Play ", selectedOption, player);
+                selectedCard.play(player);
+
+                // Discard card appropriately
+                switch (selectedCard) {
+                    case DoorCard doorCard -> DeckManager.doorDiscardPile.add(doorCard);
+                    case TreasureCard treasureCard -> DeckManager.treasureDiscardPile.add(treasureCard);
+                    default -> System.out.println("Error handelling, unknown card type");
                 }
             }
         }
+
     }
 
     public static void triggerRunAway(MonsterCard monster, Player player) {
@@ -102,9 +105,25 @@ public class PlayManager {
                 DeckManager.treasureCardsDeck.add((TreasureCard)card);
             }
         }
-        player.clearCombatPowerCards();
 
-        System.out.println("Rolling dice to run away...");
+        System.out.println(player.getCombatPowerCards());
+        if (player.getCombatPowerCards() instanceof ArrayList) {
+            System.out.println("combatPowerCards is an ArrayList.");
+        } else {
+            System.out.println("combatPowerCards is not an ArrayList.");
+        }
+        if (player.getCombatPowerCards() != null) {
+            System.out.println("combatPowerCards is of type: " + player.getCombatPowerCards().getClass().getName());
+        } else {
+            System.out.println("combatPowerCards is null.");
+        }
+        System.out.println(player.getCombatPowerCards() == null);
+        System.out.println(player.getCombatPowerCards().isEmpty());
+
+        if (player.getCombatPowerCards() == null) {
+            player.clearCombatPowerCards();
+        }
+
         int diceRoll = new Random().nextInt(6) + 1;
 
         if (diceRoll < 5) {
@@ -140,8 +159,7 @@ public class PlayManager {
 
         // Display options
         GameUI.printCombatOptions(player, monster, optionsCombat);
-     
-        // TODO: Continue to ask for choice if not a valid choice
+    
         int choice = PlayManager.getUserInput(optionsCombat.size());
         return optionsCombat.get(choice - 1); 
     }

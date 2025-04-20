@@ -19,6 +19,4 @@ public final class Constants {
         COMBAT,        
         IMMEDIATE      
     }
-
-    // TODO: Make enum for warrier, wizzrd and cleric types
 }

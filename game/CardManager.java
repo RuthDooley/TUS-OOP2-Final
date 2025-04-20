@@ -10,7 +10,7 @@ import player.Player;
 import ui.GameUI;
 
 public class CardManager {
-        /**
+    /**
      * Return a list of Cards that can be played at the start of the turn.
      * In the main game loop the array list of strings in option menu will be generated
      */
@@ -48,13 +48,11 @@ public class CardManager {
         // Display options
         GameUI.printTurnOptions(player, optionsStart);
      
-        // TODO: Continue to ask for choice if not a valid choice
         int choice = PlayManager.getUserInput(optionsStart.size());
         return optionsStart.get(choice - 1); 
     }
 
     // Form an array list of card, return a string of the card names only. This is for parsing for the game state
-    // TODO: Maybe put this somewhere else?
     public static List<String> listOfCardNameStringsFromCardArrayList(List<? extends Card> cards) {
         List<String> cardNames = new ArrayList<>();
         for (Card card : cards) {

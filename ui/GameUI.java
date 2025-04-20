@@ -9,9 +9,6 @@ import player.Player;
 public class GameUI {
     /**
      * UI Elements:
-     * 1. 
-     * 
-     * TODO: Add final UI descriptions when report is done
      */
 
     // UI 1
@@ -52,6 +49,8 @@ public class GameUI {
 
     // UI 4
     public static void printRunAwayResult(int dieRoll, Player player) {
+        System.out.println("Rolling dice to run away...");
+        System.out.println("Die roll: " + dieRoll);
         System.out.println(dieRoll >= 5 ? "You ran away!" : "You failed to run away! You lose a token");
     }
 

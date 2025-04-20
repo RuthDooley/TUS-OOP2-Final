@@ -68,12 +68,10 @@ public class Player {
         tokens++;
     }
 
-    public boolean removeToken() {
+    public void removeToken() {
         if (tokens > 0) {
             tokens--;
-            return true;
         }
-        return false; // TODO: Event on false
     }
 
     public void printTokens() {

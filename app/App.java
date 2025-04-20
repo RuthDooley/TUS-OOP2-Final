@@ -23,8 +23,6 @@ import player.*;
 import savegame.*;
 import ui.*;
 
-// TODO: Should probably think about putting all of the functions in a util file or somehting?
-
 public class App {
     static Player player;
     static int turnCount = 1;
@@ -38,7 +36,7 @@ public class App {
         int choice = 0;
         GameState loadedState = SaveManager.loadGame();
         if (loadedState != null) {
-            GameUI.printCreateOrLoadGame(loadedState.getSaveTime()); // TODO: Add date and time
+            GameUI.printCreateOrLoadGame(loadedState.getSaveTime());
             choice = PlayManager.getUserInput(2) - 1;
         }
 
@@ -70,12 +68,12 @@ public class App {
         List<MonsterCard> monsterCards = inputCards.get("monster").stream()
             .map(data -> {
                 int level = Integer.parseInt(data[0].trim());
-                String typeImmune = data[1].trim(); // TODO, instead of immune type add extra combat points
+                String typeImmune = data[1].trim();
                 int treasureDrop = Integer.parseInt(data[2].trim());
                 String name = data[3].trim();
                 String description = "Lvl " + level + " monster, " + typeImmune + " + 1 combat power, defeat yields " + treasureDrop + " treasures";
                 Runnable action = () -> {
-                    System.out.println("TODO, Sample for now");
+                    System.out.println("Play monster card " + name + ". Victory yields " + treasureDrop + " treasures");
                 };
                 return new MonsterCard(name, level, typeImmune, treasureDrop, description, action);
             })
@@ -177,10 +175,10 @@ public class App {
 
                 // Draw 2 door cards, and 3 treasure cards
                 for (int i = 0; i < Constants.DOOR_CARD_START_COUNT; i++) 
-                    player.addCardToHand(DeckManager.drawDoorCard.get()); // TODO, change to draw door card
+                    player.addCardToHand(DeckManager.drawDoorCard.get()); 
 
                 for (int i = 0; i < Constants.TREASURE_CARD_START_COUNT; i++) 
-                    player.addCardToHand(DeckManager.drawTreasureCard.get()); // TODO, change to draw treasure card
+                    player.addCardToHand(DeckManager.drawTreasureCard.get());
 
                 // Removing white iterating: Curse cards just removed from hand to begin, and added to discard pile
                 List<Card> modifiableHand = new ArrayList<>(player.getHand()); 
@@ -212,8 +210,6 @@ public class App {
                 ).stream()
                 .flatMap(List::stream)
                 .toList();
-
-                // TODO: Some lists of cards need to be reversed
                 
                 player = new Player(
                         loadedState.getPlayerGender(), 
@@ -241,13 +237,10 @@ public class App {
                     DoorCard drawnCard = (DoorCard) DeckManager.drawDoorCard.get();
                     GameUI.printDrawnCard(drawnCard);
             
-                    // TODO: Make into switch statement with pattemr matching 
-                    if (drawnCard instanceof MonsterCard monster) {
-                        PlayManager.triggerCombat(monster, player);
-                    } else if (drawnCard instanceof CurseCard curse) {
-                        curse.play(player);
-                    } else {
-                        player.addCardToHand(drawnCard);
+                    switch (drawnCard) {
+                        case MonsterCard monster -> PlayManager.triggerCombat(monster, player);
+                        case CurseCard curse -> curse.play(player);
+                        default -> player.addCardToHand(drawnCard);
                     }
                 }
                 case "Save & Exit" -> {
