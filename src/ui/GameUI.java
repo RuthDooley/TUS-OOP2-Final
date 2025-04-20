@@ -10,7 +10,8 @@ import cards.TreasureCard;
 import player.Player;
 
 public class GameUI {
-    public static Locale locale = Locale.of("en", "GB");
+    public static Locale locale = Locale.of("fr", "FR");
+    // public static Locale locale = Locale.of("en", "GB");
     public static final ResourceBundle MESSAGES = ResourceBundle.getBundle("resources.MessagesBundle", locale);
     
     // UI 1
@@ -22,8 +23,8 @@ public class GameUI {
     // UI 1.5
     public static void printOptionsFragment(Player player, ArrayList<String> options) {
         player.printTokens();
-        System.out.println(MESSAGES.getString("ui.gender").replace("{0}", player.getGender()));
-        System.out.println(MESSAGES.getString("ui.class").replace("{0}", player.getCharacterClass()));
+        System.out.println(MESSAGES.getString("ui.gender").replace("{0}", player.getGender() != null ? player.getGender() : "Undefined"));
+        System.out.println(MESSAGES.getString("ui.class").replace("{0}", player.getCharacterClass() != null ? player.getCharacterClass() : "Undefined"));
         System.out.println("");
 
         player.printArmour();
